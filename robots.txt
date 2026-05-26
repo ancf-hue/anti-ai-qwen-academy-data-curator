@@ -1,0 +1,7 @@
+# https://robotstxt.org
+User-agent: *
+Allow: /
+
+# Host & Sitemap
+Host: https://anti-ai-qwen-academy-data-curator.vercel.app
+Sitemap: https://vercel.app
