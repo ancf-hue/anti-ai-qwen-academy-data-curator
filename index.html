@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
+  
+  <!-- 🔐 Production-ready CSP -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' ws: wss:; media-src 'self' blob:;">
+  
+  <!-- 📱 PWA & Mobile Optimizations -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0c14">
+  <meta name="description" content="Anti-AI Qwen Academy: Курс Куратора данных — этичное управление данными для верификации ИИ-контента">
+  
+  <!-- 🔹 Логотип -->
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link rel="manifest" href="data:application/json,{"name":"Anti-AI Qwen Academy: Data Curator","short_name":"Qwen-DC","start_url":".","display":"standalone","background_color":"#0a0c14","theme_color":"#00bcd4","icons":[{"src":"favicon.ico","sizes":"any","type":"image/x-icon"}]}">
+  
+  <title>anti-ai-qwen-academy • Data Curator</title>
+  
+  <style>
+    :root {
+      --bg: #0a0c14; --surface: rgba(20,24,36,0.95); --glass: rgba(255,255,255,0.06);
+      --text: #e6eaf0; --muted: #8a92a6;
+      --accent: #00d4ff; --qwen: #615ef0; --qwen-glow: rgba(97,94,240,0.3);
+      --data: #00bcd4; --data-glow: rgba(0,188,212,0.3);
+      --success: #2ecc71; --warning: #f39c12; --danger: #e74c3c; --gold: #ffd700;
+      --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, monospace;
+      --radius: 14px; --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+      --focus-ring: 0 0 0 3px rgba(0,188,212,0.4);
+    }
+    
+    /* 🔹 Base Reset & Accessibility */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { 
+      background: var(--bg); color: var(--text); font-family: var(--font); 
+      min-height: 100vh; display: flex; justify-content: center; padding: 16px;
+      line-height: 1.5; -webkit-text-size-adjust: 100%;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+      html { scroll-behavior: auto; }
+    }
+    
+    /* 🔹 Interactive Elements */
+    button, .btn, .tab-btn, input, textarea, select { 
+      user-select: none; -webkit-tap-highlight-color: transparent; 
+      font-family: inherit; font-size: inherit;
+    }
+    button:focus-visible, .btn:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+      outline: none; box-shadow: var(--focus-ring);
+    }
+    .code-block, .lesson-content, .cert-id, .lib-item p, .lesson-input, .case-text, .metadata-preview { 
+      user-select: text; -webkit-user-select: text;
+    }
+    
+    /* 🔹 Main App Container */
+    #app { 
+      width: 100%; max-width: 860px; 
+      background: var(--surface); backdrop-filter: blur(16px); 
+      border: 1px solid rgba(255,255,255,0.12); border-radius: var(--radius); 
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6); 
+      padding: 20px; display: flex; flex-direction: column; gap: 16px; 
+      position: relative; overflow: hidden;
+    }
+    #app::before { 
+      content: ''; position: absolute; top: -30%; left: -20%; 
+      width: 140%; height: 140%; 
+      background: radial-gradient(circle at 20% 20%, var(--data-glow), transparent 50%), 
+                  radial-gradient(circle at 80% 80%, rgba(0,212,255,0.08), transparent 50%); 
+      pointer-events: none; z-index: 0; 
+    }
+
+    /* 🔹 Hero Section */
+    .hero-section { text-align: center; padding: 10px 0 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    
+    /* 🔹 Logo Row */
+    .logo-row { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:10px; flex-wrap:wrap; }
+    .logo-img { width:52px; height:52px; object-fit:contain; border-radius:8px; border:1px solid rgba(0,188,212,0.3); flex-shrink:0; }
+    .logo-fallback { display:none; align-items:center; justify-content:center; width:52px; height:52px; background:linear-gradient(135deg, var(--data), var(--accent)); border-radius:8px; font-size:1.5rem; font-weight:bold; color:#fff; flex-shrink:0; border:1px solid rgba(0,188,212,0.4); }
+    .logo-fallback svg { width:32px; height:32px; }
+    
+    /* 🔹 Hero Image */
+    .hero-img { max-width: 100%; height: auto; border-radius: 12px; margin: 12px 0; border: 1px solid rgba(0,188,212,0.3); }
+    .hero-fallback { padding: 20px; background: linear-gradient(135deg, rgba(0,188,212,0.15), rgba(0,212,255,0.1)); border-radius: 12px; margin: 12px 0; border: 2px dashed var(--data); text-align: center; }
+    
+    /* 🔹 Badges */
+    .badge-qwen { display: inline-block; padding: 6px 16px; background: linear-gradient(135deg, var(--data), #0097a7); color: #fff; border-radius: 20px; font-weight: bold; margin: 8px 4px; font-size: 0.85rem; }
+    .badge-gold { display: inline-block; padding: 6px 16px; background: linear-gradient(135deg, var(--gold), #ffed4e); color: #000; border-radius: 20px; font-weight: bold; margin: 8px 4px; font-size: 0.85rem; }
+    .update-indicator { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--success); margin-top: 8px; }
+    .update-indicator.live::before { content: ''; width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* 🔹 Concept Grid */
+    .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
+    .concept-card { background: rgba(0,0,0,0.3); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); transition: var(--transition); }
+    .concept-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px var(--data-glow); border-color: var(--data); }
+    .concept-card img { width: 100%; height: 120px; object-fit: cover; display: block; }
+    .concept-icon { width: 100%; height: 120px; background: linear-gradient(135deg, rgba(0,188,212,0.2), rgba(0,212,255,0.15)); display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+    .concept-caption { padding: 10px; font-size: 0.8rem; color: var(--muted); text-align: center; font-weight: 600; }
+
+    /* 🔹 Typography */
+    h1 { font-size: 1.2rem; display: flex; align-items: center; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 0; }
+    h1 .brand { color: var(--data) !important; font-weight: 700; }
+    h1 .sep { color: var(--muted) !important; margin: 0 6px; }
+    h1 .spec { color: var(--text) !important; }
+    
+    /* 🔹 Header Actions */
+    .hdr-actions { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+    #langBtn, #guideBtn, #voiceBtn { 
+      background: var(--glass); border: 1px solid rgba(255,255,255,0.2); 
+      padding: 6px 10px; border-radius: 8px; color: var(--text); 
+      cursor: pointer; font-weight: bold; transition: var(--transition); font-size: 0.8rem; 
+    }
+    #langBtn:hover, #guideBtn:hover, #voiceBtn:hover { border-color: var(--data); box-shadow: 0 0 15px var(--data-glow); }
+    #voiceBtn.active { background: rgba(0,188,212,0.2); border-color: var(--data); color: var(--data); }
+
+    /* 🔹 Tabs Navigation */
+    .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; }
+    .tabs::-webkit-scrollbar { height: 4px; }
+    .tabs::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+    .tab-btn { 
+      flex: 1; min-width: max-content; padding: 10px; 
+      background: var(--glass); border: 1px solid rgba(255,255,255,0.1); 
+      border-radius: 10px; color: var(--muted); font-weight: 600; 
+      cursor: pointer; transition: var(--transition); white-space: nowrap; 
+    }
+    .tab-btn:hover { background: rgba(255,255,255,0.08); }
+    .tab-btn.active { background: rgba(0,188,212,0.15); border-color: var(--data); color: var(--data); box-shadow: 0 0 20px var(--data-glow); }
+    .tab-btn:focus-visible { outline: none; box-shadow: var(--focus-ring), 0 0 20px var(--data-glow); }
+
+    /* 🔹 Tab Content */
+    .tab-content { display: none; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
+    .tab-content.active { display: flex; }
+    .tab-content::-webkit-scrollbar { width: 6px; }
+    .tab-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+
+    /* 🔹 Cards */
+    .card { background: rgba(0,0,0,0.35); padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); transition: var(--transition); }
+    .card:hover { border-color: rgba(255,255,255,0.15); }
+    .card h3 { color: var(--gold); margin-bottom: 6px; font-size: 0.9rem; }
+    .card p, .card li { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+    .card ul, .card ol { padding-left: 18px; margin-top: 4px; }
+
+    /* 🔹 Tags */
+    .tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; margin: 2px; }
+    .tag-qwen { background: rgba(0,188,212,0.2); border: 1px solid var(--data); color: var(--data); }
+    .tag-green { background: rgba(46,204,113,0.2); border: 1px solid var(--success); color: var(--success); }
+    .tag-blue { background: rgba(0,212,255,0.2); border: 1px solid var(--accent); color: var(--accent); }
+
+    /* 🔹 Lesson Cards */
+    .lesson-card { background: rgba(255,255,255,0.03); padding: 14px; border-radius: 10px; margin: 8px 0; border-left: 3px solid var(--muted); transition: var(--transition); }
+    .lesson-card.locked { opacity: 0.4; pointer-events: none; filter: grayscale(0.8); }
+    .lesson-card.active { border-left-color: var(--data); }
+    .lesson-card.completed { border-left-color: var(--success); opacity: 0.7; }
+    .lesson-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .lesson-title { font-weight: bold; color: var(--data); font-size: 0.95rem; }
+    .lesson-status { padding: 3px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; }
+    .lesson-status.locked { background: rgba(255,255,255,0.1); color: var(--muted); }
+    .lesson-status.active { background: rgba(0,188,212,0.2); color: var(--data); }
+    .lesson-status.completed { background: rgba(46,204,113,0.2); color: var(--success); }
+    .lesson-content { font-size: 0.85rem; color: var(--muted); margin-bottom: 10px; }
+    .case-text { background: rgba(0,0,0,0.5); padding: 10px; border-radius: 6px; font-size: 0.85rem; margin: 8px 0; border-left: 3px solid var(--accent); white-space: pre-wrap; }
+    .lesson-task { background: rgba(0,188,212,0.08); padding: 10px; border-radius: 8px; margin: 8px 0; font-size: 0.8rem; border: 1px solid rgba(0,188,212,0.2); }
+    .qwen-format { background: rgba(0,212,255,0.08); padding: 8px; border-radius: 6px; margin: 8px 0; font-size: 0.75rem; font-family: monospace; border: 1px dashed var(--accent); color: var(--accent); }
+    .lesson-input { width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: var(--text); margin: 8px 0; font-family: var(--font); min-height: 80px; resize: vertical; font-size: 16px; }
+    .lesson-input:focus { border-color: var(--data); box-shadow: var(--focus-ring); }
+    .lesson-feedback { margin-top: 8px; padding: 10px; border-radius: 6px; font-size: 0.82rem; display: none; }
+    .lesson-feedback.success { background: rgba(46,204,113,0.1); border: 1px solid var(--success); color: var(--success); }
+    .lesson-feedback.error { background: rgba(231,76,60,0.1); border: 1px solid var(--danger); color: #ff8a8a; }
+
+    /* 🔹 Exam Questions */
+    .exam-question { margin: 16px 0; padding: 14px; background: rgba(0,0,0,0.3); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+    .exam-question.answered { border-color: var(--data); }
+    .exam-options label { display: block; margin: 6px 0; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 6px; cursor: pointer; }
+    .exam-options label:hover { background: rgba(255,255,255,0.08); }
+    .exam-options input[type="radio"] { margin-right: 8px; accent-color: var(--data); }
+
+    /* 🔹 Certificate */
+    .certificate { background: linear-gradient(135deg, rgba(0,188,212,0.15), rgba(0,212,255,0.15)); border: 3px solid var(--data); border-radius: 16px; padding: 30px; text-align: center; margin: 12px 0; position: relative; overflow: hidden; box-shadow: 0 0 40px var(--data-glow); }
+    .certificate::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,188,212,0.03) 10px, rgba(0,188,212,0.03) 20px); animation: shimmer 3s linear infinite; }
+    @keyframes shimmer { 0%{transform:translate(-50%,-50%)} 100%{transform:translate(0,0)} }
+    .certificate-content { position: relative; z-index: 1; }
+    .certificate h3 { color: var(--data); margin-bottom: 12px; font-size: 1.5rem; }
+    .certificate p { font-size: 0.9rem; color: var(--text); margin: 6px 0; }
+    .cert-badge { display: inline-block; padding: 6px 16px; background: linear-gradient(135deg, var(--data), #0097a7); color: #fff; border-radius: 25px; font-weight: bold; margin: 12px 0; box-shadow: 0 4px 15px var(--data-glow); }
+    .cert-id { font-family: monospace; background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 6px; color: var(--data); display: inline-block; margin: 8px 0; }
+    .cert-seal { width: 80px; height: 80px; border: 3px solid var(--data); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 16px auto; background: rgba(0,188,212,0.1); font-size: 2rem; box-shadow: 0 0 20px var(--data-glow); }
+    .cert-validator { margin-top: 16px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; text-align: left; }
+    .cert-validator input { width: 100%; padding: 8px; margin: 8px 0; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: var(--text); font-family: monospace; font-size: 16px; }
+
+    /* 🔹 Pipeline Grid */
+    .pipeline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 12px 0; }
+    .pipeline-card { background: rgba(0,188,212,0.08); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,188,212,0.2); }
+    .pipeline-card h4 { color: var(--data); margin-bottom: 6px; font-size: 0.85rem; }
+    .pipeline-card p { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+    .pipeline-card .fmt { font-family: monospace; font-size: 0.7rem; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+
+    /* 🔹 Skills Grid */
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 12px 0; }
+    .skill-card { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; border-left: 3px solid var(--accent); }
+    .skill-card h4 { color: var(--gold); margin-bottom: 8px; font-size: 0.9rem; }
+    .skill-card li { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+
+    /* 🔹 Warning Box */
+    .warning-box { background: rgba(243,156,18,0.1); border-left: 4px solid var(--warning); padding: 12px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 0.8rem; }
+    .warning-box strong { color: var(--warning); }
+
+    /* 🔹 Collaboration Grid */
+    .collab-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin: 12px 0; }
+    .collab-card { padding: 10px; border-radius: 8px; font-size: 0.8rem; }
+    .collab-card.green { background: rgba(46,204,113,0.1); border: 1px solid var(--success); }
+    .collab-card.yellow { background: rgba(243,156,18,0.1); border: 1px solid var(--warning); }
+    .collab-card.orange { background: rgba(230,126,34,0.1); border: 1px solid #e67e22; }
+    .collab-card.blue { background: rgba(0,212,255,0.1); border: 1px solid var(--accent); }
+    .collab-card h4 { margin-bottom: 4px; }
+    .collab-card p { font-size: 0.75rem; color: var(--muted); }
+
+    /* 🔹 Dataset Builder */
+    .dataset-builder { background: rgba(0,188,212,0.1); border: 1px solid var(--data); border-radius: 10px; padding: 14px; margin: 12px 0; }
+    .dataset-builder textarea { width: 100%; min-height: 80px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: var(--text); padding: 10px; font-family: var(--font); font-size: 0.85rem; font-size: 16px; }
+    .dataset-builder textarea:focus { border-color: var(--data); box-shadow: var(--focus-ring); }
+    
+    .dataset-params { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin: 12px 0; }
+    .dataset-param { background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; }
+    .dataset-param label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+    .dataset-param input, .dataset-param select { width: 100%; padding: 6px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: var(--text); font-size: 0.8rem; font-size: 16px; }
+    
+    .annotation-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin: 12px 0; }
+    .annotation-item { background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; text-align: center; cursor: pointer; transition: var(--transition); border: 2px solid transparent; }
+    .annotation-item:hover, .annotation-item.selected { border-color: var(--data); background: rgba(0,188,212,0.15); }
+    .annotation-item img { width: 100%; height: 80px; object-fit: cover; border-radius: 4px; margin-bottom: 4px; }
+    .annotation-item .label { font-size: 0.7rem; color: var(--muted); }
+    
+    .bias-chart { margin: 12px 0; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; }
+    .bias-bar { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+    .bias-bar .label { width: 100px; font-size: 0.8rem; color: var(--muted); }
+    .bias-bar .bar { flex: 1; height: 20px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+    .bias-bar .fill { height: 100%; background: linear-gradient(90deg, var(--data), var(--accent)); width: 50%; transition: width 0.3s ease; }
+    .bias-bar .value { width: 40px; font-size: 0.75rem; color: var(--muted); text-align: right; }
+    
+    .metadata-preview { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; font-family: monospace; font-size: 0.8rem; color: var(--accent); margin: 8px 0; white-space: pre-wrap; max-height: 200px; overflow-y: auto; }
+    
+    .access-rules { margin: 12px 0; }
+    .access-rule { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .access-rule:last-child { border-bottom: none; }
+    .access-rule input { accent-color: var(--data); }
+    .access-rule label { font-size: 0.85rem; color: var(--muted); }
+
+    /* 🔹 Library Section */
+    .library-section { margin-bottom: 16px; }
+    .library-section h4 { color: var(--data); margin: 12px 0 8px; font-size: 1rem; }
+    .library-section ul { padding-left: 20px; font-size: 0.85rem; color: var(--muted); }
+    .library-section li { margin-bottom: 4px; }
+    .library-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin: 12px 0; }
+    .library-card { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border-left: 3px solid var(--data); }
+    .library-card h5 { color: var(--gold); margin-bottom: 6px; font-size: 0.9rem; }
+    .library-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
+
+    /* 🔹 Form Elements */
+    input, textarea, select { 
+      width: 100%; padding: 10px; background: rgba(255,255,255,0.06); 
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; 
+      color: var(--text); font-family: var(--font); outline: none; font-size: 16px;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--data); box-shadow: var(--focus-ring); }
+
+    /* 🔹 Buttons */
+    .btn { 
+      padding: 10px 14px; background: linear-gradient(135deg, var(--data), #0097a7); 
+      color: #fff; border: none; border-radius: 8px; font-weight: 700; 
+      cursor: pointer; transition: var(--transition); box-shadow: 0 4px 15px var(--data-glow); 
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--data-glow); }
+    .btn:active { transform: translateY(0); }
+    .btn.secondary { background: var(--glass); color: var(--text); border: 1px solid rgba(255,255,255,0.2); box-shadow: none; }
+    .btn.secondary:hover { border-color: var(--data); }
+    .btn.danger { background: linear-gradient(135deg, var(--danger), #c0392b); color: #fff; }
+    .btn-group { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+    /* 🔹 Skill Progress */
+    .skill-item { margin: 10px 0; }
+    .skill-label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; }
+    .skill-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+    .skill-fill { height: 100%; background: linear-gradient(90deg, var(--data), var(--accent)); width: 0%; transition: width 0.8s ease; }
+
+    /* 🔹 Support Section */
+    .support { text-align: center; padding: 14px; background: linear-gradient(135deg, rgba(0,188,212,0.1), rgba(0,212,255,0.1)); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-top: auto; }
+    .support h3 { color: var(--data); margin-bottom: 8px; }
+    .support p { font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
+    footer { text-align: center; color: var(--muted); font-size: 0.7rem; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 8px; }
+
+    /* 🔹 Modal */
+    .modal { 
+      position: fixed; inset: 0; background: rgba(2,2,8,0.92); 
+      backdrop-filter: blur(8px); display: none; justify-content: center; 
+      align-items: center; z-index: 100; padding: 20px; 
+    }
+    .modal.open { display: flex; }
+    .modal-content { 
+      background: var(--surface); padding: 24px; border-radius: 16px; 
+      border: 1px solid rgba(0,188,212,0.3); max-width: 500px; width: 100%; 
+      max-height: 90vh; overflow-y: auto; position: relative; 
+    }
+    .modal-close { 
+      position: absolute; top: 12px; right: 12px; background: none; 
+      border: none; color: var(--muted); font-size: 1.2rem; cursor: pointer; 
+      padding: 4px; border-radius: 4px;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+
+    /* 🔹 Materials Grid */
+    .materials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin: 12px 0; }
+    .material-item { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; border-left: 3px solid var(--data); }
+    .material-item h4 { color: var(--data); font-size: 0.85rem; margin-bottom: 4px; }
+    .material-item p { font-size: 0.75rem; color: var(--muted); }
+    .material-item .fmt { font-family: monospace; font-size: 0.7rem; color: var(--accent); background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; }
+
+    /* 🔹 Responsive */
+    @media(max-width:480px) {
+      #app { padding: 14px; } 
+      h1 { font-size: 1rem; }
+      .logo-img, .logo-fallback { width:40px; height:40px; }
+      .tab-btn { padding: 8px; font-size: 0.75rem; } 
+      .card { padding: 10px; }
+      .btn { padding: 8px 10px; font-size: 0.8rem; }
+      .concept-grid { grid-template-columns: 1fr 1fr; }
+      .pipeline-grid, .library-grid { grid-template-columns: 1fr; }
+      .certificate { padding: 20px; }
+      .dataset-params { grid-template-columns: 1fr 1fr; }
+      .annotation-grid { grid-template-columns: repeat(2, 1fr); }
+      .bias-bar .label { width: 80px; font-size: 0.75rem; }
+      .bias-bar .value { width: 35px; font-size: 0.7rem; }
+    }
+    
+    /* 🔹 Print Styles */
+    @media print {
+      body { background: white; color: black; padding: 0; }
+      #app { box-shadow: none; border: none; max-width: none; }
+      .btn, .tabs, .hdr-actions, .support, footer { display: none !important; }
+      .certificate { border-color: #00bcd4; background: white; }
+    }
+  </style>
+</head>
+<body>
+
+<main id="app" role="main">
+  <div class="hero-section">
+    <!-- 🔹 Логотип с улучшенным fallback -->
+    <div class="logo-row">
+      <img src="favicon.ico" alt="anti-ai-qwen-academy" class="logo-img"
+           onerror="if(this.src.indexOf('favicon')!==-1){this.style.display='none';const fb=this.nextElementSibling;if(fb&&fb.classList.contains('logo-fallback'))fb.style.display='flex';}">
+      <div class="logo-fallback" aria-hidden="true" role="img" aria-label="Qwen Academy Logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <h1>
+        <span class="brand">anti-ai-qwen-academy</span>
+        <span class="sep">•</span>
+        <span class="spec">Data Curator</span>
+      </h1>
+    </div>
+    
+    <p style="font-size:0.85rem; color:var(--muted); margin-top:4px;" data-i18n="hero_subtitle" aria-label="Course subtitle">
+      Library Data Hub • 100% Offline • 10 days • Ethical Data Management
+    </p>
+    
+    <!-- 🔹 Hero изображение -->
+    <img src="assets/images/hero-data-curator.png" alt="Data Curator Course" class="hero-img" 
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+    <div class="hero-fallback" style="display:none;" role="img" aria-label="Course illustration">
+      <p style="font-size:3rem; margin-bottom:8px;" aria-hidden="true">🗂️🔍</p>
+      <p style="color:var(--data); font-weight:bold; font-size:1.1rem;" data-i18n="qwen_title">
+        Anti-AI Qwen Academy: Data Curator Specialist
+      </p>
+      <p style="font-size:0.8rem; margin-top:8px;">
+        🎓 10 days • 🏛️ Library Hub • 🔐 Offline • 🧹 Clean Data
+      </p>
+    </div>
+
+    <div style="margin:12px 0;" role="list" aria-label="Course badges">
+      <span class="badge-qwen" role="listitem">🗂️ Data Mgmt</span>
+      <span class="badge-qwen" role="listitem">🏷️ Annotation</span>
+      <span class="badge-qwen" role="listitem">⚖️ Ethics First</span>
+      <span class="badge-gold" role="listitem">💼 Volunteer/Grant</span>
+    </div>
+
+    <div class="hdr-actions" role="toolbar" aria-label="Quick actions">
+      <button id="guideBtn" onclick="app.openModal('guideModal')" aria-haspopup="dialog">📖 <span data-i18n="guide_btn">10-Day Plan</span></button>
+      <button id="voiceBtn" onclick="app.toggleVoice()" aria-pressed="false" aria-label="Toggle voice narration">🔇</button>
+      <button id="langBtn" onclick="app.toggleLang()" aria-label="Switch language">🌐 EN</button>
+    </div>
+  </div>
+
+  <!-- 🔹 Concept Grid с изображениями и fallback -->
+  <div class="concept-grid" role="list" aria-label="Core concepts">
+    <div class="concept-card" role="listitem">
+      <img src="assets/images/data-sourcing.png" alt="Data Sourcing" onerror="this.parentElement.innerHTML='<div class=\'concept-icon\' aria-hidden=\'true\'>🔍</div><div class=\'concept-caption\'>Sourcing</div>'">
+      <div class="concept-caption" data-i18n="concept1">🔍 Sourcing</div>
+    </div>
+    <div class="concept-card" role="listitem">
+      <img src="assets/images/data-cleaning.png" alt="Data Cleaning" onerror="this.parentElement.innerHTML='<div class=\'concept-icon\' aria-hidden=\'true\'>🧹</div><div class=\'concept-caption\'>Cleaning</div>'">
+      <div class="concept-caption" data-i18n="concept2">🧹 Cleaning</div>
+    </div>
+    <div class="concept-card" role="listitem">
+      <img src="assets/images/annotation.png" alt="Annotation" onerror="this.parentElement.innerHTML='<div class=\'concept-icon\' aria-hidden=\'true\'>🏷️</div><div class=\'concept-caption\'>Annotation</div>'">
+      <div class="concept-caption" data-i18n="concept3">🏷️ Annotation</div>
+    </div>
+    <div class="concept-card" role="listitem">
+      <img src="assets/images/bias-detection.png" alt="Bias Detection" onerror="this.parentElement.innerHTML='<div class=\'concept-icon\' aria-hidden=\'true\'>⚖️</div><div class=\'concept-caption\'>Bias Check</div>'">
+      <div class="concept-caption" data-i18n="concept4">⚖️ Bias Check</div>
+    </div>
+    <div class="concept-card" role="listitem">
+      <img src="assets/images/data-security.png" alt="Data Security" onerror="this.parentElement.innerHTML='<div class=\'concept-icon\' aria-hidden=\'true\'>🔐</div><div class=\'concept-caption\'>Security</div>'">
+      <div class="concept-caption" data-i18n="concept5">🔐 Security</div>
+    </div>
+    <div class="concept-card" role="listitem">
+      <img src="assets/images/documentation.png" alt="Documentation" onerror="this.parentElement.innerHTML='<div class=\'concept-icon\' aria-hidden=\'true\'>📦</div><div class=\'concept-caption\'>Docs</div>'">
+      <div class="concept-caption" data-i18n="concept6">📦 Documentation</div>
+    </div>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="Course sections">
+    <button class="tab-btn active" data-tab="course" role="tab" aria-selected="true" aria-controls="course" data-i18n="tab_course">🎓 Course</button>
+    <button class="tab-btn" data-tab="tools" role="tab" aria-selected="false" aria-controls="tools" data-i18n="tab_tools">🛠️ Tools</button>
+    <button class="tab-btn" data-tab="library" role="tab" aria-selected="false" aria-controls="library" data-i18n="tab_library">📚 Library</button>
+    <button class="tab-btn" data-tab="progress" role="tab" aria-selected="false" aria-controls="progress" data-i18n="tab_progress">📅 Progress</button>
+  </nav>
+
+  <!-- 🎓 COURSE TAB -->
+  <section id="course" class="tab-content active" role="tabpanel" aria-labelledby="tab-course">
+    <div class="card" style="border: 2px solid var(--data); background: linear-gradient(135deg, rgba(0,188,212,0.1), rgba(0,212,255,0.1));">
+      <h3 style="color: var(--data); text-align: center;" data-i18n="cert_conditions">🏆 CERTIFICATE REQUIREMENTS</h3>
+      <div style="display: flex; justify-content: center; gap: 16px; margin: 12px 0; flex-wrap: wrap;">
+        <div style="text-align: center;"><div style="font-size: 2rem;" aria-hidden="true">📚</div><b>10/10 lessons</b><br><span style="font-size: 0.8rem; color: var(--muted);" data-i18n="cond1_sub">Data Curation + Qwen formats</span></div>
+        <div style="text-align: center;"><div style="font-size: 2rem;" aria-hidden="true">🧠</div><b>10/10 exam</b><br><span style="font-size: 0.8rem; color: var(--muted);" data-i18n="cond2_sub">No mistakes</span></div>
+        <div style="text-align: center;"><div style="font-size: 2rem;" aria-hidden="true">📁</div><b data-i18n="cond3">Portfolio</b><br><span style="font-size: 0.8rem; color: var(--muted);" data-i18n="cond3_sub">5 cases in Qwen formats</span></div>
+      </div>
+      <p style="text-align: center; font-size: 0.85rem; color: var(--muted);" data-i18n="cert_warning">⚠️ Perfect results → Library Contributor access</p>
+    </div>
+
+    <div class="card">
+      <h3 data-i18n="progress_title">📊 Progress</h3>
+      <div class="skill-item">
+        <div class="skill-label"><span data-i18n="lessons_done">Lessons completed</span><span id="courseProgress">0/10</span></div>
+        <div class="skill-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Course progress">
+          <div class="skill-fill" id="courseBar" style="width:0%"></div>
+        </div>
+      </div>
+      <div style="margin-top:12px; text-align:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">
+        <button class="btn danger" onclick="app.resetProgress()" style="font-size:0.8rem; width:100%;" data-i18n="reset_btn">🔄 Reset</button>
+        <p style="font-size:0.7rem; color:var(--muted); margin-top:6px;" data-i18n="reset_warning">⚠️ All data will be deleted</p>
+      </div>
+    </div>
+
+    <div id="lessonsContainer" role="list" aria-label="Course lessons"></div>
+    <div id="examContainer"></div>
+
+    <!-- CERTIFICATE -->
+    <div class="certificate" id="certificateBox" style="display:none;" role="region" aria-label="Certificate">
+      <div class="certificate-content">
+        <div class="cert-seal" aria-hidden="true">🗂️</div>
+        <h3 data-i18n="cert_heading">🎓 CERTIFICATE</h3>
+        <p style="font-size:1rem; margin:8px 0; color:var(--data);">
+          <b data-i18n="cert_course">Course: <span id="certCourseDisplay">Qwen Data Curator Specialist</span></b>
+        </p>
+        <p data-i18n="cert_confirms">This certifies that</p>
+        <p style="font-size:1.2rem; color:var(--gold); margin:8px 0; font-weight:bold;" data-i18n="cert_who">Certified Data Curator Specialist</p>
+        <p data-i18n="cert_completed">has successfully completed the ethical data curation course for AI verification projects</p>
+        <div class="cert-id" id="certIdDisplay" aria-label="Certificate ID">QWEN-DATA-XXXXXX</div>
+        <p style="font-size:0.8rem; color:var(--muted); margin-top:8px;">
+          <span data-i18n="cert_issuer">Issuer:</span> <span id="certIssuerDisplay">Anti-AI Qwen Academy</span>
+        </p>
+        <p style="font-size:0.8rem; color:var(--muted); margin-top:4px;">
+          <span data-i18n="cert_pipeline">Pipeline:</span> <span id="certPipelineDisplay">qwen-data-curator-ethics</span>
+        </p>
+        <p style="font-size:0.8rem; color:var(--muted); margin-top:4px;">
+          <span data-i18n="cert_compliance">Compliance:</span> <span id="certComplianceDisplay">tongyi_safety_v2, iso_iec_42001, gdpr_compliant</span>
+        </p>
+        <p style="font-size:0.8rem; color:var(--muted); margin-top:4px;" data-i18n="cert_date_label">Date: <span id="certDateDisplay"></span></p>
+        <div style="margin:12px 0;">
+          <button class="btn secondary" onclick="app.exportCertificate()" style="font-size:0.8rem; margin-right:8px;" data-i18n="cert_download">💾 JSON</button>
+          <button class="btn secondary" onclick="app.exportQwenPortfolio()" style="font-size:0.8rem; margin-right:8px;" data-i18n="cert_qwen_export">📤 Qwen Format</button>
+          <button class="btn secondary" onclick="app.printCertificate()" style="font-size:0.8rem;" data-i18n="cert_print">🖨️ Print</button>
+        </div>
+        <div class="cert-badge" data-i18n="cert_badge">Qwen Data Curator Specialist</div>
+        <div class="btn-group" style="justify-content:center; margin-top:16px; flex-wrap:wrap;">
+          <button class="btn" onclick="app.printCertificate()" data-i18n="cert_print">🖨️ Print / PDF</button>
+          <button class="btn secondary" onclick="app.switchTab('tools')" data-i18n="cert_practice">🛠️ Tools</button>
+        </div>
+        <div class="cert-validator">
+          <h4 style="color:var(--data); margin:0 0 8px 0;" data-i18n="cert_validate_title">🔍 Verify Certificate</h4>
+          <input type="text" id="validateInput" placeholder="QWEN-DATA-XXXXXX" pattern="QWEN-DATA-[A-Z0-9]{6}" aria-label="Enter certificate ID to verify">
+          <button class="btn secondary" onclick="app.validateCertificate()" style="width:100%; font-size:0.8rem;" data-i18n="cert_validate_btn">✅ Check</button>
+          <div id="validateResult" style="margin-top:8px; font-size:0.8rem; display:none;" role="status" aria-live="polite"></div>
+        </div>
+        <p style="font-size:0.75rem; color:var(--muted); margin-top:12px;" data-i18n="cert_security">🔒 Offline • SHA-256 • Qwen-compatible • GDPR-ready</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🛠️ TOOLS TAB -->
+  <section id="tools" class="tab-content" role="tabpanel" aria-labelledby="tab-tools">
+    <div class="card" style="text-align:center; border-color:var(--data);">
+      <h3 data-i18n="tools_title">🛠️ Data Curator Toolkit</h3>
+      <p style="font-size:0.85rem; color:var(--muted); margin-top:8px;" data-i18n="tools_subtitle">Interactive tools for ethical data curation practice</p>
+    </div>
+    
+    <!-- Dataset Builder -->
+    <div class="card">
+      <h4 style="color:var(--data);">🗂️ <span data-i18n="dataset_builder">Dataset Builder</span></h4>
+      <p style="font-size:0.8rem; color:var(--muted); margin:4px 0;" data-i18n="dataset_desc">Create mini-datasets with quality parameters</p>
+      <div class="dataset-builder">
+        <textarea id="datasetDesc" placeholder="Describe your dataset purpose... e.g., 'Training set for deepfake detection: diverse faces, various lighting conditions'" aria-label="Dataset description"></textarea>
+        
+        <div class="dataset-params">
+          <div class="dataset-param">
+            <label for="dataTypeSelect">Data Type</label>
+            <select id="dataTypeSelect" aria-label="Select data type">
+              <option value="images">Images</option>
+              <option value="audio">Audio</option>
+              <option value="video">Video</option>
+              <option value="text">Text</option>
+            </select>
+          </div>
+          <div class="dataset-param">
+            <label for="sizeSelect">Size</label>
+            <select id="sizeSelect" aria-label="Select dataset size">
+              <option value="small">Small (100-500)</option>
+              <option value="medium">Medium (500-2000)</option>
+              <option value="large">Large (2000+)</option>
+            </select>
+          </div>
+          <div class="dataset-param">
+            <label for="licenseSelect">License</label>
+            <select id="licenseSelect" aria-label="Select license type">
+              <option value="cc-by">CC-BY</option>
+              <option value="cc-by-sa">CC-BY-SA</option>
+              <option value="cc0">CC0</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div class="dataset-param">
+            <label for="qualitySlider">Quality Score: <span id="qualityValue">7</span>/10</label>
+            <input type="range" id="qualitySlider" min="1" max="10" value="7" aria-label="Quality score slider">
+          </div>
+        </div>
+        
+        <button class="btn secondary" onclick="app.generateDatasetPreview()" style="font-size:0.8rem; width:100%;" data-i18n="preview_btn">👁️ Preview Qwen Format</button>
+        <div id="datasetPreview" class="metadata-preview" style="display:none;" role="region" aria-label="Qwen format preview"></div>
+      </div>
+    </div>
+    
+    <!-- Annotation Simulator -->
+    <div class="card" style="margin-top:12px;">
+      <h4 style="color:var(--data);">🏷️ <span data-i18n="annotation_sim">Annotation Simulator</span></h4>
+      <p style="font-size:0.8rem; color:var(--muted); margin:4px 0;" data-i18n="annotation_desc">Practice labeling images with metadata</p>
+      <div class="annotation-grid" id="annotationGrid" role="listbox" aria-label="Images to annotate">
+        <!-- Dynamically populated -->
+      </div>
+      <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;" role="group" aria-label="Annotation actions">
+        <button class="btn secondary" onclick="app.annotateSelected('real')" style="font-size:0.75rem;" aria-label="Mark as real">✅ Real</button>
+        <button class="btn secondary" onclick="app.annotateSelected('synthetic')" style="font-size:0.75rem;" aria-label="Mark as synthetic">🤖 Synthetic</button>
+        <button class="btn secondary" onclick="app.annotateSelected('uncertain')" style="font-size:0.75rem;" aria-label="Mark as uncertain">❓ Uncertain</button>
+      </div>
+      <div id="annotationResult" style="margin-top:8px; font-size:0.85rem; display:none;" role="status" aria-live="polite"></div>
+    </div>
+    
+    <!-- Bias Detector -->
+    <div class="card" style="margin-top:12px;">
+      <h4 style="color:var(--data);">⚖️ <span data-i18n="bias_detector">Bias Detector</span></h4>
+      <p style="font-size:0.8rem; color:var(--muted); margin:4px 0;" data-i18n="bias_desc">Visualize demographic biases in your dataset</p>
+      <div class="bias-chart" id="biasChart" role="img" aria-label="Bias visualization chart">
+        <!-- Dynamically populated -->
+      </div>
+      <button class="btn secondary" onclick="app.analyzeBias()" style="font-size:0.8rem; margin-top:8px; width:100%;" data-i18n="analyze_bias">🔍 Analyze Bias</button>
+      <div id="biasResult" style="margin-top:8px; display:none; font-size:0.85rem;" role="status" aria-live="polite"></div>
+    </div>
+    
+    <!-- Metadata Generator -->
+    <div class="card" style="margin-top:12px;">
+      <h4 style="color:var(--data);">📋 <span data-i18n="metadata_gen">Metadata Generator</span></h4>
+      <p style="font-size:0.8rem; color:var(--muted); margin:4px 0;" data-i18n="metadata_desc">Generate catalog record for your dataset</p>
+      <div style="margin:12px 0;">
+        <input type="text" id="metaTitle" placeholder="Dataset Title: e.g., 'Library Face Verification Set'" aria-label="Dataset title">
+        <input type="text" id="metaTags" placeholder="Tags: e.g., faces, verification, diverse, offline" style="margin-top:8px;" aria-label="Dataset tags (comma-separated)">
+        <textarea id="metaNotes" placeholder="Notes: collection methodology, ethical considerations, usage guidelines..." style="margin-top:8px; min-height:80px;" aria-label="Dataset notes"></textarea>
+      </div>
+      <button class="btn secondary" onclick="app.generateMetadata()" style="font-size:0.8rem; width:100%;" data-i18n="generate_meta">📋 Generate Record</button>
+      <div id="metaOutput" class="metadata-preview" style="display:none;" role="region" aria-label="Generated metadata"></div>
+    </div>
+  </section>
+
+  <!-- 📚 LIBRARY TAB -->
+  <section id="library" class="tab-content" role="tabpanel" aria-labelledby="tab-library">
+    <div class="card" style="text-align:center; border-color:var(--data);">
+      <h3 data-i18n="library_title">📚 Data Curator Specialist Library</h3>
+      <p style="font-size:0.85rem; color:var(--muted); margin-top:8px;" data-i18n="library_subtitle">Role documentation, ethics, workflows, resources</p>
+    </div>
+
+    <!-- 🔹 ROLE CARD: Куратор данных -->
+    <div class="card library-section">
+      <h4>🗂️ <span data-i18n="role_title">Data Curator</span></h4>
+      <p style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;" data-i18n="role_subtitle">Guardian of data quality, ethics, and accessibility throughout the data lifecycle</p>
+      
+      <div class="library-grid">
+        <div class="library-card">
+          <h5 data-i18n="role_mission">🔑 Key Mission</h5>
+          <p data-i18n="role_mission_desc">Prepare clean, ethically balanced, and legally compliant datasets for training AI verification specialists in offline mode.</p>
+        </div>
+        <div class="library-card">
+          <h5 data-i18n="role_responsibilities">🧩 Responsibilities</h5>
+          <ul>
+            <li data-i18n="resp1">Source identification: open datasets, user content, synthetic data</li>
+            <li data-i18n="resp2">Cleaning and validation: remove duplicates, fix errors, detect artifacts</li>
+            <li data-i18n="resp3">Annotation and metadata: label media with structured metadata</li>
+            <li data-i18n="resp4">Bias detection and correction: ensure representative sampling</li>
+          </ul>
+        </div>
+        <div class="library-card">
+          <h5 data-i18n="role_tools">🛠️ Tools</h5>
+          <p data-i18n="tools_desc">Label Studio (local), CVAT, SQLite, OpenCV, ExifTool, Obsidian for documentation, Great Expectations for QC.</p>
+        </div>
+        <div class="library-card">
+          <h5 data-i18n="role_kpi">📊 KPIs</h5>
+          <ul>
+            <li data-i18n="kpi1">95%+ data quality score after cleaning</li>
+            <li data-i18n="kpi2">0 critical ethical violations in curated datasets</li>
+            <li data-i18n="kpi3">100% metadata completeness for cataloged datasets</li>
+            <li data-i18n="kpi4">Reproducibility: all datasets versioned and documented</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- WHY LIBRARIES NEED DATA CURATORS -->
+    <div class="card library-section">
+      <h3 style="color:var(--data);" data-i18n="why_curator_title">🎯 Why libraries need Data Curators</h3>
+      <p style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;" data-i18n="why_curator_desc">
+        Libraries are becoming data hubs for AI literacy. Data Curators ensure datasets are clean, ethical, legally compliant, and educationally valuable — not just collected.
+      </p>
+      <div class="pipeline-grid">
+        <div class="pipeline-card">
+          <h4>🔍 Data Sourcing</h4>
+          <p data-i18n="pipe1_desc">Identifying relevant, legally clean sources for educational datasets</p>
+          <span class="fmt">qwen_data_source_record.md</span>
+        </div>
+        <div class="pipeline-card">
+          <h4>🧹 Quality Control</h4>
+          <p data-i18n="pipe2_desc">Cleaning, validating, and documenting dataset quality metrics</p>
+          <span class="fmt">qwen_quality_report.json</span>
+        </div>
+        <div class="pipeline-card">
+          <h4>⚖️ Ethics Review</h4>
+          <p data-i18n="pipe3_desc">Detecting and correcting demographic, cultural, geographic biases</p>
+          <span class="fmt">qwen_bias_audit.csv</span>
+        </div>
+        <div class="pipeline-card">
+          <h4>🔐 Access Management</h4>
+          <p data-i18n="pipe4_desc">Setting permissions, encryption, compliance with 152-ФЗ/GDPR</p>
+          <span class="fmt">qwen_access_config.yaml</span>
+        </div>
+        <div class="pipeline-card">
+          <h4>📦 Documentation</h4>
+          <p data-i18n="pipe5_desc">Versioning, methodology description, reproducibility guarantees</p>
+          <span class="fmt">qwen_dataset_catalog.json</span>
+        </div>
+      </div>
+      <div class="warning-box" style="margin-top:12px;">
+        <strong data-i18n="warning_title">💡 Important:</strong>
+        <span data-i18n="why_curator_warning">Data Curators don't just collect data — they ensure it serves education, ethics, and accessibility. They are the first line of defense against biased, low-quality, or legally problematic AI training data.</span>
+      </div>
+    </div>
+
+    <!-- SKILLS -->
+    <div class="card library-section">
+      <h3 data-i18n="skills_section">🛠️ Graduate Skills</h3>
+      <div class="skills-grid">
+        <div class="skill-card">
+          <h4 data-i18n="hard_skills">🔹 Hard Skills</h4>
+          <ul>
+            <li data-i18n="hard1">Basic Python/SQL for data manipulation</li>
+            <li data-i18n="hard2">Understanding data formats: JSON, CSV, TFRecord, EXIF</li>
+            <li data-i18n="hard3">Annotation tools: Label Studio, CVAT, Prodigy</li>
+            <li data-i18n="hard4">Visual analysis: compression artifacts, blinking detection, lighting inconsistencies</li>
+            <li data-i18n="hard5">TensorFlow Lite for offline inference of detection models</li>
+          </ul>
+        </div>
+        <div class="skill-card">
+          <h4 data-i18n="soft_skills">🔹 Soft Skills</h4>
+          <ul>
+            <li data-i18n="soft1">Attention to detail and critical thinking</li>
+            <li data-i18n="soft2">Understanding ethical aspects of personal data handling</li>
+            <li data-i18n="soft3">Communication with engineers, methodologists, lawyers</li>
+            <li data-i18n="soft4">Ability to explain technical nuances to non-technical audiences</li>
+            <li data-i18n="soft5">Compliance mindset: 152-ФЗ, GDPR, Tongyi AI Principles</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOBS -->
+    <div class="card library-section">
+      <h3 data-i18n="jobs_title">💼 Where do Data Curators work?</h3>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;" role="list" aria-label="Job sectors">
+        <span class="tag tag-qwen" role="listitem">🏛️ Public Libraries</span>
+        <span class="tag tag-qwen" role="listitem">🎓 Research Institutions</span>
+        <span class="tag tag-qwen" role="listitem">🔬 AI Labs</span>
+        <span class="tag tag-qwen" role="listitem">⚖️ Legal Tech</span>
+        <span class="tag tag-qwen" role="listitem">♿ Inclusive Tech Projects</span>
+        <span class="tag tag-qwen" role="listitem">🌍 Open Data Initiatives</span>
+      </div>
+      <p style="font-size:0.85rem; color:var(--muted); margin-top:12px;" data-i18n="salary_info">Formats: Volunteer • Internship • Grant-funded • Part-time</p>
+    </div>
+  </section>
+
+  <!-- 📅 PROGRESS TAB -->
+  <section id="progress" class="tab-content" role="tabpanel" aria-labelledby="tab-progress">
+    <div class="card">
+      <h3 data-i18n="progress_path">📈 Path to Data Curator Specialist</h3>
+      <ol style="padding-left:20px; color:var(--muted); line-height:1.8; font-size:0.82rem;">
+        <li><b>Days 1-3:</b> <span data-i18n="days1_3_desc">Role intro, data sourcing, cleaning fundamentals</span></li>
+        <li><b>Days 4-6:</b> <span data-i18n="days4_6_desc">Annotation, bias detection, security basics</span></li>
+        <li><b>Days 7-8:</b> <span data-i18n="days7_8_desc">Documentation, quality control, versioning</span></li>
+        <li><b>Day 9:</b> <span data-i18n="day9_desc">Portfolio in Qwen-compatible formats</span></li>
+        <li><b>Day 10:</b> <span data-i18n="day10_desc">FINAL EXAM (10/10)</span></li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3 data-i18n="output_title">📦 Qwen Data Curator Reporting Formats</h3>
+      <div style="margin-top:8px;">
+        <div class="qwen-format">{"type": "qwen_dataset_record", "name": "...", "license": "CC-BY-SA", "quality_score": 0.92}</div>
+        <div class="qwen-format">{"type": "qwen_bias_audit", "dataset_id": "...", "biases_detected": [], "corrected": true}</div>
+        <div class="qwen-format">pipeline: qwen-data-curator-ethics | compliance: gdpr_152fz</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="support">
+    <h3 data-i18n="support_title">🤝 SUPPORT THE PROJECT 💙</h3>
+    <p data-i18n="support_desc">App is free. Always will be.<br>Support development:</p>
+    <div style="background:rgba(0,0,0,0.3); padding:6px 10px; border-radius:6px; display:inline-block; margin:4px 0;">
+      <span id="phoneNum" style="color:var(--gold); font-weight:bold;">8-920-227-56-76</span>
+    </div>
+    <button class="btn secondary" style="margin-top:6px; font-size:0.8rem;" onclick="app.copyPhone()" data-i18n="copy_phone">📋 Copy</button>
+    <a href="https://ancf-hue.github.io/" target="_blank" rel="noopener noreferrer" style="color:var(--accent); text-decoration:none; font-weight:bold; display:block; margin-top:4px;" data-i18n="catalog_link">🌟 Anti-AI Shield Catalog</a>
+  </section>
+
+  <footer data-i18n="footer">Anti-AI Qwen Academy | 100% Offline | Data Curator</footer>
+</main>
+
+<!-- GUIDE MODAL -->
+<div id="guideModal" class="modal" onclick="if(event.target===this)app.closeModal('guideModal')" role="dialog" aria-modal="true" aria-labelledby="guideModalTitle">
+  <div class="modal-content">
+    <button class="modal-close" onclick="app.closeModal('guideModal')" aria-label="Close guide">✕</button>
+    <h2 id="guideModalTitle" style="color:var(--data); margin-bottom:12px;" data-i18n="guide_title">🚀 10-Day Plan</h2>
+    <ol style="padding-left:20px; color:var(--muted); line-height:1.8; font-size:0.85rem;">
+      <li><b>1:</b> <span>🗂️ Intro: Data Curator role in AI era</span></li>
+      <li><b>2:</b> <span>🔍 Data sourcing and evaluation: relevance, legal cleanliness</span></li>
+      <li><b>3:</b> <span>🧹 Data cleaning: duplicates, errors, compression artifacts</span></li>
+      <li><b>4:</b> <span>🏷️ Annotation and metadata: standards and practices</span></li>
+      <li><b>5:</b> <span>⚖️ Balancing and ethics: detecting demographic/cultural bias</span></li>
+      <li><b>6:</b> <span>🔐 Data security: access, encryption, localization compliance</span></li>
+      <li><b>7:</b> <span>📦 Documentation and versioning: methodology, reproducibility</span></li>
+      <li><b>8:</b> <span>🧪 Quality control: metrics, tests, validation pipelines</span></li>
+      <li><b>9:</b> <span>📁 Portfolio: cases in Qwen pipeline formats</span></li>
+      <li><b>10:</b> <span>🏆 FINAL EXAM (10/10) → QWEN-DATA-XXXXXX</span></li>
+    </ol>
+    <button class="btn" style="margin-top:16px; width:100%;" onclick="app.closeModal('guideModal')" data-i18n="guide_start">Let's go!</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ========== 🔐 CERTIFICATE UTILS (Unicode-safe) ==========
+  const CERT_SECRET = "qwen_data_curator_specialist_2026_secret";
+  
+  function generateCertSignature(id, issuer) {
+    const str = `${id}:${issuer}:${CERT_SECRET}`;
+    try {
+      return btoa(encodeURIComponent(str)).substring(0, 24);
+    } catch(e) {
+      return Array.from(str).map(c => c.charCodeAt(0).toString(16).padStart(2,'0')).join('').substring(0, 24);
+    }
+  }
+  
+  function verifyCertSignature(id, issuer, sig) {
+    if (!id || !issuer || !sig) return false;
+    return generateCertSignature(id, issuer) === sig;
+  }
+
+  // ========== 📦 DATA CURATOR COURSE DATA ==========
+  const DATA_CURATOR_COURSE = [
+    { 
+      day: 1, 
+      title: { ru: "🗂️ Введение: роль куратора данных в эпоху ИИ", en: "🗂️ Intro: Data Curator role in AI era" },
+      content: { 
+        ru: "Куратор данных — не просто сборщик, а гарант качества, этичности и воспроизводимости данных. Вы обеспечиваете, чтобы датасеты служили образованию, а не распространению предвзятости.",
+        en: "Data Curator is not just a collector, but a guarantor of data quality, ethics, and reproducibility. You ensure datasets serve education, not bias propagation."
+      },
+      case: {
+        ru: "Пример: датасет для обучения детекции дипфейков содержит 90% лиц одной этнической группы. Задача: выявить и скорректировать демографическое смещение.",
+        en: "Example: dataset for deepfake detection training contains 90% faces of one ethnic group. Task: detect and correct demographic bias."
+      },
+      task: {
+        ru: "Назовите 3 критерия оценки качества датасета для образовательных целей.",
+        en: "Name 3 criteria for evaluating dataset quality for educational purposes."
+      },
+      check: (a) => (/качеств|качество|quality|репрезент|представлен|represent|этик|этика|ethic|лиценз|лицензия|license|документ|документация|document/i.test(a)),
+      hint: {
+        ru: "1) Репрезентативность выборки 2) Юридическая чистота лицензий 3) Полнота метаданных для воспроизводимости",
+        en: "1) Sample representativeness 2) Legal cleanliness of licenses 3) Metadata completeness for reproducibility"
+      },
+      qwenFormat: '{"type": "qwen_dataset_quality_criteria.md", "criteria": ["representativeness", "legal_compliance", "metadata_completeness"]}'
+    },
+    { 
+      day: 2, 
+      title: { ru: "🔍 Поиск и оценка источников данных", en: "🔍 Data sourcing and evaluation" },
+      content: {
+        ru: "Источники данных: открытые репозитории (Kaggle, Hugging Face), пользовательский контент, синтетические данные. Оценка: релевантность, юридическая чистота, техническое качество.",
+        en: "Data sources: open repositories (Kaggle, Hugging Face), user content, synthetic data. Evaluation: relevance, legal cleanliness, technical quality."
+      },
+      case: {
+        ru: "Найдено 3 источника для датасета детекции дипфейков: 1) CC-BY, 2) Non-commercial, 3) Неясная лицензия. Решение: использовать только источники с явными лицензиями.",
+        en: "Found 3 sources for deepfake detection dataset: 1) CC-BY, 2) Non-commercial, 3) Unclear license. Solution: use only sources with explicit licenses."
+      },
+      task: {
+        ru: "Составьте чек-лист из 4 пунктов для оценки источника данных.",
+        en: "Create a 4-point checklist for evaluating a data source."
+      },
+      check: (a) => (/лиценз|лицензия|license|авторск|автор|copyright|релевант|relevance|качеств|качество|quality|источник|source|оценк|evaluate/i.test(a)),
+      hint: {
+        ru: "Чек-лист: 1) Ясность лицензии 2) Релевантность задаче 3) Техническое качество (разрешение, шум) 4) Документированность методологии сбора.",
+        en: "Checklist: 1) License clarity 2) Task relevance 3) Technical quality (resolution, noise) 4) Collection methodology documentation."
+      },
+      qwenFormat: '{"type": "qwen_source_evaluation.json", "criteria": ["license_clarity", "relevance", "technical_quality", "methodology_docs"]}'
+    },
+    { 
+      day: 3, 
+      title: { ru: "🧹 Очистка данных: дубликаты, ошибки, артефакты", en: "🧹 Data cleaning: duplicates, errors, artifacts" },
+      content: {
+        ru: "Очистка включает: удаление дубликатов, исправление ошибок разметки, детекцию артефактов сжатия, несовместимости освещения, признаков ИИ-генерации.",
+        en: "Cleaning includes: removing duplicates, fixing annotation errors, detecting compression artifacts, lighting inconsistencies, AI-generation signs."
+      },
+      case: {
+        ru: "В датасете обнаружены: 15% дубликатов, 8% изображений с артефактами сжатия, 3% с признаками ИИ-генерации. Решение: фильтрация + документирование исключений.",
+        en: "Dataset contains: 15% duplicates, 8% images with compression artifacts, 3% with AI-generation signs. Solution: filtering + documenting exclusions."
+      },
+      task: {
+        ru: "Опишите процесс очистки мини-датасета из 50 изображений от артефактов.",
+        en: "Describe the cleaning process for a mini-dataset of 50 images from artifacts."
+      },
+      check: (a) => (/дубликат|duplicate|артефакт|artifact|сжатие|compression|освещен|lighting|очистк|clean|фильтр|filter|документ|документация|document/i.test(a)),
+      hint: {
+        ru: "Шаги: 1) Детекция дубликатов (хэши) 2) Визуальный осмотр на артефакты 3) Проверка метаданных на несовместимости 4) Документирование исключений с причинами.",
+        en: "Steps: 1) Duplicate detection (hashes) 2) Visual inspection for artifacts 3) Metadata check for inconsistencies 4) Documenting exclusions with reasons."
+      },
+      qwenFormat: '{"type": "qwen_cleaning_log.md", "steps": ["duplicate_detection", "artifact_inspection", "metadata_check", "exclusion_documentation"]}'
+    },
+    { 
+      day: 4, 
+      title: { ru: "🏷️ Аннотирование и метаданные: стандарты и практики", en: "🏷️ Annotation and metadata: standards and practices" },
+      content: {
+        ru: "Аннотирование: разметка изображений/аудио/видео метками (реальное/синтетическое, артефакты). Метаданные: структурированное описание для поиска и воспроизводимости.",
+        en: "Annotation: labeling images/audio/video with tags (real/synthetic, artifacts). Metadata: structured description for search and reproducibility."
+      },
+      case: {
+        ru: "Задача: разметить 100 изображений для обучения детекции дипфейков. Решение: использовать Label Studio с шаблоном меток: 'real_face', 'deepfake', 'compression_artifact', 'lighting_inconsistency'.",
+        en: "Task: annotate 100 images for deepfake detection training. Solution: use Label Studio with label template: 'real_face', 'deepfake', 'compression_artifact', 'lighting_inconsistency'."
+      },
+      task: {
+        ru: "Составьте шаблон метаданных для датасета изображений: какие поля обязательны?",
+        en: "Create a metadata template for an image dataset: which fields are mandatory?"
+      },
+      check: (a) => (/метаданн|metadata|разметк|annotation|метк|label|тег|tag|обязательн|mandatory|полей|поле|field/i.test(a)),
+      hint: {
+        ru: "Обязательные поля: id, filename, label, license, creator, date_created, quality_score. Опциональные: source_url, notes, related_files.",
+        en: "Mandatory fields: id, filename, label, license, creator, date_created, quality_score. Optional: source_url, notes, related_files."
+      },
+      qwenFormat: '{"type": "qwen_metadata_template.json", "mandatory": ["id","filename","label","license","creator","date_created","quality_score"]}'
+    },
+    { 
+      day: 5, 
+      title: { ru: "⚖️ Балансировка и этика: выявление смещений", en: "⚖️ Balancing and ethics: detecting bias" },
+      content: {
+        ru: "Смещения в данных: демографические (возраст, пол, этнос), географические, культурные. Выявление: статистический анализ, визуализация. Коррекция: добор данных, перевзвешивание.",
+        en: "Data biases: demographic (age, gender, ethnicity), geographic, cultural. Detection: statistical analysis, visualization. Correction: data augmentation, reweighting."
+      },
+      case: {
+        ru: "Анализ датасета показал: 80% лиц — мужчины, 70% — европейская внешность. Решение: добор изображений женщин и представителей других этносов для баланса.",
+        en: "Dataset analysis showed: 80% faces are male, 70% European appearance. Solution: augment with images of women and other ethnicities for balance."
+      },
+      task: {
+        ru: "Опишите метод выявления демографического смещения в датасете лиц.",
+        en: "Describe a method for detecting demographic bias in a face dataset."
+      },
+      check: (a) => (/смещен|bias|демограф|demographic|возраст|age|пол|гендер|gender|этнос|этническ|ethnic|баланс|balance|репрезент|представлен|represent/i.test(a)),
+      hint: {
+        ru: "Метод: 1) Статистика по демографическим атрибутам 2) Визуализация распределения 3) Сравнение с целевой популяцией 4) План коррекции смещений.",
+        en: "Method: 1) Statistics on demographic attributes 2) Distribution visualization 3) Comparison with target population 4) Bias correction plan."
+      },
+      qwenFormat: '{"type": "qwen_bias_audit.csv", "attributes": ["gender","ethnicity","age"], "detected_biases": ["gender_imbalance"], "correction_plan": "augment_underrepresented"}'
+    },
+    { 
+      day: 6, 
+      title: { ru: "🔐 Безопасность данных: доступ, шифрование, локализация", en: "🔐 Data security: access, encryption, localization" },
+      content: {
+        ru: "Безопасность: настройка прав доступа к чувствительным данным, шифрование при хранении/передаче, соблюдение требований локализации (152-ФЗ, GDPR).",
+        en: "Security: setting access rights to sensitive data, encryption at rest/in transit, compliance with localization requirements (152-ФЗ, GDPR)."
+      },
+      case: {
+        ru: "Датасет содержит персональные данные. Решение: псевдонимизация, настройка ролей доступа (читать/писать/админ), шифрование базы, аудит доступа.",
+        en: "Dataset contains personal data. Solution: pseudonymization, setting access roles (read/write/admin), database encryption, access auditing."
+      },
+      task: {
+        ru: "Составьте конфигурацию прав доступа для датасета с чувствительными данными.",
+        en: "Create an access rights configuration for a dataset with sensitive data."
+      },
+      check: (a) => (/доступ|доступ|access|роль|role|шифрован|encrypt|псевдоним|pseudonym|аудит|audit|gdpr|152-фз|локализ|локализация|localization/i.test(a)),
+      hint: {
+        ru: "Конфигурация: роли (reader, editor, admin), правила доступа по атрибутам, шифрование полей с персональными данными, логирование доступа.",
+        en: "Configuration: roles (reader, editor, admin), attribute-based access rules, encryption of personal data fields, access logging."
+      },
+      qwenFormat: '{"type": "qwen_access_config.yaml", "roles": ["reader","editor","admin"], "encrypted_fields": ["personal_id","face_embedding"], "audit_log": true}'
+    },
+    { 
+      day: 7, 
+      title: { ru: "📦 Документирование и версионирование датасетов", en: "📦 Documentation and versioning of datasets" },
+      content: {
+        ru: "Документирование: описание методологии сбора, очистки, аннотирования. Версионирование: фиксация изменений, обеспечение воспроизводимости результатов.",
+        en: "Documentation: describing collection, cleaning, annotation methodology. Versioning: fixing changes, ensuring result reproducibility."
+      },
+      case: {
+        ru: "Датасет обновлён: добавлено 200 новых изображений, исправлено 15 ошибок разметки. Решение: создать новую версию (v1.1), зафиксировать changelog.",
+        en: "Dataset updated: added 200 new images, fixed 15 annotation errors. Solution: create new version (v1.1), document changelog."
+      },
+      task: {
+        ru: "Составьте шаблон записи в журнале изменений датасета.",
+        en: "Create a template for a dataset changelog entry."
+      },
+      check: (a) => (/версион|версия|version|изменен|change|changelog|документ|документация|document|методолог|методология|methodology|воспроизвод|репродуцир|reproduc/i.test(a)),
+      hint: {
+        ru: "Шаблон: версия, дата, автор изменений, описание изменений, затронутые файлы, тесты на воспроизводимость, ссылка на предыдущую версию.",
+        en: "Template: version, date, change author, change description, affected files, reproducibility tests, link to previous version."
+      },
+      qwenFormat: '{"type": "qwen_changelog_entry.json", "fields": ["version","date","author","changes","affected_files","reproducibility_tests","previous_version_link"]}'
+    },
+    { 
+      day: 8, 
+      title: { ru: "🧪 Контроль качества: метрики, тесты, валидация", en: "🧪 Quality control: metrics, tests, validation" },
+      content: {
+        ru: "Контроль качества: метрики (полнота, точность разметки), автоматические тесты (формат, целостность), валидация экспертом, обратная связь от пользователей.",
+        en: "Quality control: metrics (completeness, annotation accuracy), automated tests (format, integrity), expert validation, user feedback."
+      },
+      case: {
+        ru: "Прогон датасета через чек-лист качества выявил: 95% полнота метаданных, 2% ошибок разметки. Решение: исправить ошибки, обновить метрики, задокументировать.",
+        en: "Running dataset through quality checklist revealed: 95% metadata completeness, 2% annotation errors. Solution: fix errors, update metrics, document."
+      },
+      task: {
+        ru: "Составьте чек-лист из 5 пунктов для финальной валидации датасета.",
+        en: "Create a 5-point checklist for final dataset validation."
+      },
+      check: (a) => (/качеств|качество|quality|метрик|метрика|metric|тест|тестирован|test|валидац|валидация|validation|чек-лист|checklist|полнот|полнота|completeness/i.test(a)),
+      hint: {
+        ru: "Чек-лист: 1) Полнота метаданных 2) Точность разметки 3) Отсутствие дубликатов 4) Соответствие лицензии 5) Воспроизводимость сборки.",
+        en: "Checklist: 1) Metadata completeness 2) Annotation accuracy 3) No duplicates 4) License compliance 5) Build reproducibility."
+      },
+      qwenFormat: '{"type": "qwen_quality_checklist.md", "items": ["metadata_completeness","annotation_accuracy","no_duplicates","license_compliance","build_reproducibility"]}'
+    },
+    { 
+      day: 9, 
+      title: { ru: "📁 Портфолио: кейсы в форматах пайплайнов Qwen", en: "📁 Portfolio: cases in Qwen pipeline formats" },
+      content: {
+        ru: "Сборка готовых записей для подачи в Contributor Pipeline. Каждый кейс демонстрирует отдельный навык: очистка, аннотирование, балансировка, безопасность, документирование.",
+        en: "Assembling ready records for Contributor Pipeline submission. Each case demonstrates a separate skill: cleaning, annotation, balancing, security, documentation."
+      },
+      case: {
+        ru: "Ваше портфолио: 1) Запись источника (qwen_data_source_record.md) 2) Отчёт очистки (qwen_cleaning_log.json) 3) Аудит смещений (qwen_bias_audit.csv) 4) Конфигурация доступа (qwen_access_config.yaml) 5) Каталог датасета (qwen_dataset_catalog.json)",
+        en: "Your portfolio: 1) Source record (qwen_data_source_record.md) 2) Cleaning report (qwen_cleaning_log.json) 3) Bias audit (qwen_bias_audit.csv) 4) Access config (qwen_access_config.yaml) 5) Dataset catalog (qwen_dataset_catalog.json)"
+      },
+      task: {
+        ru: "Опишите структуру записи в каталоге датасетов: какие поля обязательны?",
+        en: "Describe the structure of a dataset catalog record: which fields are mandatory?"
+      },
+      check: (a) => (/каталог|catalog|запись|record|датасет|dataset|обязательн|mandatory|поле|поля|field|метаданн|metadata/i.test(a)),
+      hint: {
+        ru: "Обязательные: id, name, description, license, creator, date_created, version, quality_score. Опциональные: tags, related_datasets, usage_guidelines.",
+        en: "Mandatory: id, name, description, license, creator, date_created, version, quality_score. Optional: tags, related_datasets, usage_guidelines."
+      },
+      qwenFormat: '{"type": "qwen_dataset_catalog.json", "mandatory": ["id","name","description","license","creator","date_created","version","quality_score"]}'
+    },
+    { 
+      day: 10, 
+      title: { ru: "🏆 ФИНАЛЬНЫЙ ЭКЗАМЕН", en: "🏆 FINAL EXAM" }, 
+      content: { 
+        ru: "Проверка всех навыков Куратора данных. Нужно 10 из 10 для доступа к Library Contributor Pipeline.", 
+        en: "Testing all Data Curator skills. Need 10 out of 10 for Library Contributor Pipeline access." 
+      }, 
+      isExam: true,
+      examQuestions: [
+        { q: { ru: "Куратор данных должен скрывать источники данных с неясными лицензиями.", en: "Data Curator should hide data sources with unclear licenses." }, correct: false, expl: { ru: "Прозрачность источников — ключевой принцип: всегда документируйте лицензию.", en: "Source transparency is key: always document the license." } },
+        { q: { ru: "Дубликаты в датасете всегда нужно удалять.", en: "Duplicates in a dataset should always be removed." }, correct: false, expl: { ru: "Иногда дубликаты полезны для баланса; важно документировать решение.", en: "Sometimes duplicates are useful for balance; important to document the decision." } },
+        { q: { ru: "Аннотирование требует только метки 'реальное/синтетическое'.", en: "Annotation requires only 'real/synthetic' labels." }, correct: false, expl: { ru: "Детальные метаданные (артефакты, освещение) критичны для обучения моделей.", en: "Detailed metadata (artifacts, lighting) is critical for model training." } },
+        { q: { ru: "Демографическое смещение в данных не влияет на качество ИИ-моделей.", en: "Demographic bias in data doesn't affect AI model quality." }, correct: false, expl: { ru: "Смещения приводят к предвзятым предсказаниям; балансировка обязательна.", en: "Biases lead to biased predictions; balancing is mandatory." } },
+        { q: { ru: "Шифрование персональных данных обязательно при работе с чувствительной информацией.", en: "Encrypting personal data is mandatory when handling sensitive information." }, correct: true, expl: { ru: "Требование 152-ФЗ и GDPR; защита приватности — приоритет.", en: "Required by 152-ФЗ and GDPR; privacy protection is priority." } },
+        { q: { ru: "Версионирование датасетов нужно только для больших проектов.", en: "Dataset versioning is only needed for large projects." }, correct: false, expl: { ru: "Версионирование обеспечивает воспроизводимость для любых проектов.", en: "Versioning ensures reproducibility for any project size." } },
+        { q: { ru: "Чек-лист качества должен включать проверку лицензий.", en: "Quality checklist should include license verification." }, correct: true, expl: { ru: "Юридическая чистота — неотъемлемая часть качества данных.", en: "Legal cleanliness is integral part of data quality." } },
+        { q: { ru: "Метаданные датасета должны быть машиночитаемыми.", en: "Dataset metadata should be machine-readable." }, correct: true, expl: { ru: "Машиночитаемые метаданные (JSON/YAML) критичны для автоматизации.", en: "Machine-readable metadata (JSON/YAML) is critical for automation." } },
+        { q: { ru: "Куратор данных не влияет на этичность ИИ-систем.", en: "Data Curator doesn't affect AI system ethics." }, correct: false, expl: { ru: "Качество и баланс данных напрямую влияют на этичность моделей.", en: "Data quality and balance directly affect model ethics." } },
+        { q: { ru: "Документирование методологии сбора данных обеспечивает воспроизводимость.", en: "Documenting data collection methodology ensures reproducibility." }, correct: true, expl: { ru: "Без документации невозможно воспроизвести или проверить результаты.", en: "Without documentation, results cannot be reproduced or verified." } }
+      ]
+    }
+  ];
+
+  // ========== 🛠️ TOOLS DATA ==========
+  const ANNOTATION_ITEMS = [
+    { id: "img1", src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Crect width='120' height='80' fill='%23333'/%3E%3Ccircle cx='60' cy='40' r='25' fill='%23666'/%3E%3C/svg%3E", label: "real" },
+    { id: "img2", src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Crect width='120' height='80' fill='%23444'/%3E%3Ccircle cx='60' cy='40' r='25' fill='%23777'/%3E%3C/svg%3E", label: "synthetic" },
+    { id: "img3", src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Crect width='120' height='80' fill='%23555'/%3E%3Ccircle cx='60' cy='40' r='25' fill='%23888'/%3E%3C/svg%3E", label: "uncertain" },
+    { id: "img4", src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Crect width='120' height='80' fill='%23666'/%3E%3Ccircle cx='60' cy='40' r='25' fill='%23999'/%3E%3C/svg%3E", label: "real" }
+  ];
+
+  const BIAS_CATEGORIES = [
+    { id: "gender", label: { ru: "Гендер", en: "Gender" }, ideal: 50, current: 70 },
+    { id: "ethnicity", label: { ru: "Этнос", en: "Ethnicity" }, ideal: 25, current: 60 },
+    { id: "age", label: { ru: "Возраст 18-35", en: "Age 18-35" }, ideal: 33, current: 80 },
+    { id: "geography", label: { ru: "География: Европа", en: "Geography: Europe" }, ideal: 20, current: 75 }
+  ];
+
+  // ========== 🌐 i18n ==========
+  const i18n = {
+    ru: {
+      hero_subtitle: "Библиотечный хаб данных • 100% Offline • 10 дней • Этичное управление данными",
+      qwen_title: "Anti-AI Qwen Academy: Куратор данных",
+      guide_btn: "План 10 дней",
+      guide_start: "Начинаю!",
+      concept1: "🔍 Поиск", concept2: "🧹 Очистка", concept3: "🏷️ Аннотация", concept4: "⚖️ Смещения", concept5: "🔐 Безопасность", concept6: "📦 Документы",
+      tab_course: "🎓 Обучение", tab_tools: "🛠️ Инструменты", tab_library: "📚 Библиотека", tab_progress: "📅 Прогресс",
+      cert_conditions: "🏆 УСЛОВИЯ СЕРТИФИКАТА",
+      cond1_sub: "Курирование данных + форматы Qwen", cond2_sub: "Без ошибок", cond3: "Портфолио", cond3_sub: "5 кейсов в форматах Qwen",
+      cert_warning: "⚠️ Идеальный результат → доступ к Library Contributor",
+      progress_title: "📊 Прогресс", lessons_done: "Уроков пройдено",
+      reset_btn: "🔄 Сбросить", reset_warning: "⚠️ Все данные будут удалены",
+      cert_heading: "🎓 СЕРТИФИКАТ", cert_course: "Курс: ",
+      cert_confirms: "Настоящим подтверждается, что",
+      cert_who: "Сертифицированный Куратор данных",
+      cert_completed: "успешно завершил курс этичного курирования данных для проектов верификации ИИ",
+      cert_issuer: "Issuer:", cert_pipeline: "Pipeline:", cert_compliance: "Compliance:", cert_date_label: "Дата:",
+      cert_download: "💾 JSON", cert_qwen_export: "📤 Qwen Format", cert_print: "🖨️ Print",
+      cert_badge: "Qwen Data Curator Specialist", cert_practice: "🛠️ Инструменты",
+      cert_validate_title: "🔍 Проверка сертификата", cert_validate_btn: "✅ Check",
+      cert_security: "🔒 Offline • SHA-256 • Qwen-compatible • GDPR-ready",
+      tools_title: "🛠️ Инструменты Куратора данных", tools_subtitle: "Интерактивные инструменты для практики этичного курирования данных",
+      dataset_builder: "Конструктор датасетов", dataset_desc: "Создавайте мини-датасеты с параметрами качества",
+      preview_btn: "👁️ Предпросмотр формата Qwen",
+      annotation_sim: "Симулятор аннотирования", annotation_desc: "Практикуйтесь в разметке изображений с метаданными",
+      bias_detector: "Детектор смещений", bias_desc: "Визуализируйте демографические смещения в вашем датасете",
+      analyze_bias: "🔍 Проанализировать смещения",
+      metadata_gen: "Генератор метаданных", metadata_desc: "Сформируйте запись для каталога датасетов",
+      generate_meta: "📋 Сформировать запись",
+      library_title: "📚 Библиотека Куратора данных", library_subtitle: "Документация роли, этика, рабочие процессы, ресурсы",
+      role_title: "Куратор данных", role_subtitle: "Гарант качества, этичности и доступности данных на всём жизненном цикле",
+      role_mission: "🔑 Ключевая миссия", role_mission_desc: "Подготовка чистых, этично сбалансированных и юридически корректных датасетов для обучения специалистов по верификации ИИ-контента в офлайн-режиме.",
+      role_responsibilities: "🧩 Зоны ответственности", resp1: "Поиск и оценка источников: открытые датасеты, пользовательский контент, синтетические данные", resp2: "Очистка и валидация: удаление дубликатов, исправление ошибок, детекция артефактов", resp3: "Аннотирование и метаданные: разметка медиа с структурированными метаданными", resp4: "Выявление и коррекция смещений: обеспечение репрезентативности выборки",
+      role_tools: "🛠️ Инструментарий", tools_desc: "Label Studio (локально), CVAT, SQLite, OpenCV, ExifTool, Obsidian для документации, Great Expectations для контроля качества.",
+      role_kpi: "📊 Метрики эффективности", kpi1: "95%+ качество данных после очистки", kpi2: "0 критических этических нарушений в курируемых датасетах", kpi3: "100% полнота метаданных для каталогизированных датасетов", kpi4: "Воспроизводимость: все датасеты версионированы и задокументированы",
+      why_curator_title: "🎯 Почему библиотекам нужны Кураторы данных",
+      why_curator_desc: "Библиотеки становятся хабами данных для ИИ-грамотности. Кураторы данных обеспечивают чистоту, этичность, юридическую корректность и образовательную ценность датасетов — а не просто сбор.",
+      pipe1_desc: "Поиск релевантных, юридически чистых источников для образовательных датасетов",
+      pipe2_desc: "Очистка, валидация и документирование метрик качества датасетов",
+      pipe3_desc: "Выявление и коррекция демографических, культурных, географических смещений",
+      pipe4_desc: "Настройка прав доступа, шифрование, соблюдение 152-ФЗ/GDPR",
+      pipe5_desc: "Версионирование, описание методологии, гарантии воспроизводимости",
+      warning_title: "💡 Важно:",
+      why_curator_warning: "Кураторы данных не просто собирают данные — они обеспечивают, чтобы данные служили образованию, этике и доступности. Они — первая линия обороны против предвзятых, низкокачественных или юридически проблемных данных для обучения ИИ.",
+      skills_section: "🛠️ Навыки выпускника",
+      hard_skills: "🔹 Hard Skills", soft_skills: "🔹 Soft Skills",
+      hard1: "Базовое владение Python/SQL для работы с данными", hard2: "Понимание форматов данных: JSON, CSV, TFRecord, EXIF-метаданные",
+      hard3: "Опыт работы с инструментами аннотирования: Label Studio, CVAT, Prodigy", hard4: "Навыки визуального анализа: распознавание артефактов сжатия, неестественного моргания, бликов в глазах",
+      hard5: "Знакомство с TensorFlow Lite для офлайн-инференса моделей детекции",
+      soft1: "Внимание к деталям и критическое мышление", soft2: "Понимание этических аспектов работы с персональными данными",
+      soft3: "Коммуникация с командой: инженерами, методистами, юристами", soft4: "Способность объяснять технические нюансы нетехнической аудитории",
+      soft5: "Compliance mindset: 152-ФЗ, GDPR, Tongyi AI Principles",
+      jobs_title: "💼 Где работают Кураторы данных?",
+      salary_info: "Форматы: Волонтёрство • Стажировка • Грант • Частичная занятость",
+      progress_path: "📈 Путь к Куратору данных",
+      days1_3_desc: "Введение в роль, поиск данных, основы очистки",
+      days4_6_desc: "Аннотирование, выявление смещений, основы безопасности",
+      days7_8_desc: "Документирование, контроль качества, версионирование",
+      day9_desc: "Портфолио в форматах Qwen",
+      day10_desc: "ФИНАЛЬНЫЙ ЭКЗАМЕН (10/10)",
+      output_title: "📦 Форматы отчётности Куратора данных",
+      support_title: "🤝 ПОДДЕРЖАТЬ ПРОЕКТ 💙", support_desc: "Приложение бесплатное. Было и останется.<br>Поддержка разработки:",
+      copy_phone: "📋 Copy", catalog_link: "🌟 Каталог Anti-AI Shield",
+      footer: "Anti-AI Qwen Academy | 100% Offline | Data Curator",
+      guide_title: "🚀 План 10 дней",
+      cert_valid: "✅ Сертификат действителен", cert_invalid: "❌ Сертификат не найден",
+      voice_on: "Озвучка включена", voice_off: "Озвучка выключена", lang_changed: "Язык изменён",
+      progress_reset: "Прогресс сброшен", cert_downloaded: "Сертификат скачан", portfolio_downloaded: "Qwen Portfolio скачано",
+      print_cert: "Печать...", copied: "Скопировано",
+      too_short: "⚠️ Слишком кратко! Минимум 10 символов.",
+      correct: "✅ Верно! Урок завершён!", incorrect: "❌ Не совсем так. Изучите подсказку.",
+      exam_perfect: "🎉 ИДЕАЛЬНО! 10 из 10", exam_failed: "😔 Не сдано. {score}/10. Нужно 10.",
+      cert_locked: "Сначала получите сертификат (10/10).", cert_imported: "✅ Сертификат загружен!",
+      cert_bad_sig: "❌ Неверная подпись.", cert_file_error: "❌ Ошибка файла.",
+      reset_confirm: "⚠️ Сбросить весь прогресс?", reset_done: "✅ Сброшено!",
+      day_label: "День", task_label: "Задание", answer_placeholder: "Ваш ответ...",
+      check_btn: "Проверить", hint_btn: "Подсказка", answer_btn: "Ответ",
+      locked_msg: "Пройдите предыдущий урок", final_exam: "ФИНАЛЬНЫЙ ЭКЗАМЕН",
+      exam_instr: "10 вопросов. Нужно <b>10 правильных</b> для доступа к Library Contributor Pipeline.",
+      question: "Вопрос", true_opt: "Верно", false_opt: "Неверно",
+      submit_exam: "Сдать экзамен", out_of: "из", cert_unlocked: "Доступ к Library Contributor разблокирован ↓",
+      retry_btn: "Ещё раз", too_short_practice: "Слишком кратко",
+      practice_correct: "Верно! Вы нашли ключевую проблему.",
+      practice_incorrect: "Попробуйте ещё раз. Ищите проблемы качества, смещения или этические риски.",
+      invalid_format: "Неверный формат (QWEN-DATA-XXXXXX)", issued_label: "Выдан",
+      annotated: "✅ Размечено", select_image: "Выберите изображение для разметки"
+    },
+    en: {
+      hero_subtitle: "Library Data Hub • 100% Offline • 10 days • Ethical Data Management",
+      qwen_title: "Anti-AI Qwen Academy: Data Curator",
+      guide_btn: "10-Day Plan",
+      guide_start: "Let's go!",
+      concept1: "🔍 Sourcing", concept2: "🧹 Cleaning", concept3: "🏷️ Annotation", concept4: "⚖️ Bias Check", concept5: "🔐 Security", concept6: "📦 Documentation",
+      tab_course: "🎓 Course", tab_tools: "🛠️ Tools", tab_library: "📚 Library", tab_progress: "📅 Progress",
+      cert_conditions: "🏆 CERTIFICATE REQUIREMENTS",
+      cond1_sub: "Data Curation + Qwen formats", cond2_sub: "No mistakes", cond3: "Portfolio", cond3_sub: "5 cases in Qwen formats",
+      cert_warning: "⚠️ Perfect results → Library Contributor access",
+      progress_title: "📊 Progress", lessons_done: "Lessons completed",
+      reset_btn: "🔄 Reset", reset_warning: "⚠️ All data will be deleted",
+      cert_heading: "🎓 CERTIFICATE", cert_course: "Course: ",
+      cert_confirms: "This certifies that",
+      cert_who: "Certified Data Curator Specialist",
+      cert_completed: "has successfully completed the ethical data curation course for AI verification projects",
+      cert_issuer: "Issuer:", cert_pipeline: "Pipeline:", cert_compliance: "Compliance:", cert_date_label: "Date:",
+      cert_download: "💾 JSON", cert_qwen_export: "📤 Qwen Format", cert_print: "🖨️ Print",
+      cert_badge: "Qwen Data Curator Specialist", cert_practice: "🛠️ Tools",
+      cert_validate_title: "🔍 Verify Certificate", cert_validate_btn: "✅ Check",
+      cert_security: "🔒 Offline • SHA-256 • Qwen-compatible • GDPR-ready",
+      tools_title: "🛠️ Data Curator Toolkit", tools_subtitle: "Interactive tools for ethical data curation practice",
+      dataset_builder: "Dataset Builder", dataset_desc: "Create mini-datasets with quality parameters",
+      preview_btn: "👁️ Preview Qwen Format",
+      annotation_sim: "Annotation Simulator", annotation_desc: "Practice labeling images with metadata",
+      bias_detector: "Bias Detector", bias_desc: "Visualize demographic biases in your dataset",
+      analyze_bias: "🔍 Analyze Bias",
+      metadata_gen: "Metadata Generator", metadata_desc: "Generate catalog record for your dataset",
+      generate_meta: "📋 Generate Record",
+      library_title: "📚 Data Curator Specialist Library", library_subtitle: "Role documentation, ethics, workflows, resources",
+      role_title: "Data Curator", role_subtitle: "Guardian of data quality, ethics, and accessibility throughout the data lifecycle",
+      role_mission: "🔑 Key Mission", role_mission_desc: "Prepare clean, ethically balanced, and legally compliant datasets for training AI verification specialists in offline mode.",
+      role_responsibilities: "🧩 Responsibilities", resp1: "Source identification: open datasets, user content, synthetic data", resp2: "Cleaning and validation: remove duplicates, fix errors, detect artifacts", resp3: "Annotation and metadata: label media with structured metadata", resp4: "Bias detection and correction: ensure representative sampling",
+      role_tools: "🛠️ Tools", tools_desc: "Label Studio (local), CVAT, SQLite, OpenCV, ExifTool, Obsidian for documentation, Great Expectations for QC.",
+      role_kpi: "📊 KPIs", kpi1: "95%+ data quality score after cleaning", kpi2: "0 critical ethical violations in curated datasets", kpi3: "100% metadata completeness for cataloged datasets", kpi4: "Reproducibility: all datasets versioned and documented",
+      why_curator_title: "🎯 Why libraries need Data Curators",
+      why_curator_desc: "Libraries are becoming data hubs for AI literacy. Data Curators ensure datasets are clean, ethical, legally compliant, and educationally valuable — not just collected.",
+      pipe1_desc: "Identifying relevant, legally clean sources for educational datasets",
+      pipe2_desc: "Cleaning, validating, and documenting dataset quality metrics",
+      pipe3_desc: "Detecting and correcting demographic, cultural, geographic biases",
+      pipe4_desc: "Setting permissions, encryption, compliance with 152-ФЗ/GDPR",
+      pipe5_desc: "Versioning, methodology description, reproducibility guarantees",
+      warning_title: "💡 Important:",
+      why_curator_warning: "Data Curators don't just collect data — they ensure it serves education, ethics, and accessibility. They are the first line of defense against biased, low-quality, or legally problematic AI training data.",
+      skills_section: "🛠️ Graduate Skills",
+      hard_skills: "🔹 Hard Skills", soft_skills: "🔹 Soft Skills",
+      hard1: "Basic Python/SQL for data manipulation", hard2: "Understanding data formats: JSON, CSV, TFRecord, EXIF",
+      hard3: "Annotation tools: Label Studio, CVAT, Prodigy", hard4: "Visual analysis: compression artifacts, blinking detection, lighting inconsistencies",
+      hard5: "TensorFlow Lite for offline inference of detection models",
+      soft1: "Attention to detail and critical thinking", soft2: "Understanding ethical aspects of personal data handling",
+      soft3: "Communication with engineers, methodologists, lawyers", soft4: "Ability to explain technical nuances to non-technical audiences",
+      soft5: "Compliance mindset: 152-ФЗ, GDPR, Tongyi AI Principles",
+      jobs_title: "💼 Where do Data Curators work?",
+      salary_info: "Formats: Volunteer • Internship • Grant-funded • Part-time",
+      progress_path: "📈 Path to Data Curator Specialist",
+      days1_3_desc: "Role intro, data sourcing, cleaning fundamentals",
+      days4_6_desc: "Annotation, bias detection, security basics",
+      days7_8_desc: "Documentation, quality control, versioning",
+      day9_desc: "Portfolio in Qwen-compatible formats",
+      day10_desc: "FINAL EXAM (10/10)",
+      output_title: "📦 Qwen Data Curator Reporting Formats",
+      support_title: "🤝 SUPPORT THE PROJECT 💙", support_desc: "App is free. Always will be.<br>Support development:",
+      copy_phone: "📋 Copy", catalog_link: "🌟 Anti-AI Shield Catalog",
+      footer: "Anti-AI Qwen Academy | 100% Offline | Data Curator",
+      guide_title: "🚀 10-Day Plan",
+      cert_valid: "✅ Certificate is valid", cert_invalid: "❌ Certificate not found",
+      voice_on: "Voice enabled", voice_off: "Voice disabled", lang_changed: "Language changed",
+      progress_reset: "Progress reset", cert_downloaded: "Certificate downloaded", portfolio_downloaded: "Qwen Portfolio downloaded",
+      print_cert: "Printing...", copied: "Copied",
+      too_short: "⚠️ Too short! Minimum 10 characters.",
+      correct: "✅ Correct! Lesson completed!", incorrect: "❌ Not quite. Check the hint.",
+      exam_perfect: "🎉 PERFECT! 10 out of 10", exam_failed: "😔 Not passed. {score}/10. Need 10.",
+      cert_locked: "Get certificate first (10/10).", cert_imported: "✅ Certificate imported!",
+      cert_bad_sig: "❌ Invalid signature.", cert_file_error: "❌ File error.",
+      reset_confirm: "⚠️ Reset all progress?", reset_done: "✅ Reset!",
+      day_label: "Day", task_label: "Task", answer_placeholder: "Your answer...",
+      check_btn: "Check", hint_btn: "Hint", answer_btn: "Answer",
+      locked_msg: "Complete previous lesson first", final_exam: "FINAL EXAM",
+      exam_instr: "10 questions. Need <b>10 correct</b> for Library Contributor Pipeline access.",
+      question: "Question", true_opt: "True", false_opt: "False",
+      submit_exam: "Submit Exam", out_of: "out of", cert_unlocked: "Library Contributor access unlocked ↓",
+      retry_btn: "Try again", too_short_practice: "Too short",
+      practice_correct: "Correct! You found the key issue.",
+      practice_incorrect: "Try again. Look for quality issues, biases, or ethical risks.",
+      invalid_format: "Invalid format (QWEN-DATA-XXXXXX)", issued_label: "Issued",
+      annotated: "✅ Annotated", select_image: "Select an image to annotate"
+    }
+  };
+
+  // ========== 🧠 STATE ==========
+  let currentLang = localStorage.getItem('qwen_dc_lang') || 'ru';
+  let courseProgress = (() => { try { const s = JSON.parse(localStorage.getItem('qwen_dc_progress')); return Array.isArray(s) && s.length === 10 ? s : Array(10).fill(false); } catch(e) { return Array(10).fill(false); } })();
+  let examScore = parseInt(localStorage.getItem('qwen_dc_exam')) || 0;
+  let certData = JSON.parse(localStorage.getItem('qwen_dc_certificate')) || null;
+  let voiceEnabled = localStorage.getItem('qwen_dc_voice') === 'true';
+  
+  const synth = window.speechSynthesis;
+  let voices = [], currentVoice = null, lastSpeakTime = 0, voicesLoaded = false, voiceRetryCount = 0;
+
+  function saveState() {
+    try {
+      localStorage.setItem('qwen_dc_lang', currentLang);
+      localStorage.setItem('qwen_dc_progress', JSON.stringify(courseProgress));
+      localStorage.setItem('qwen_dc_exam', examScore.toString());
+      localStorage.setItem('qwen_dc_certificate', JSON.stringify(certData));
+      localStorage.setItem('qwen_dc_voice', voiceEnabled.toString());
+    } catch(e) { console.warn('Storage save failed:', e); }
+  }
+
+  // ========== 🔊 SPEECH SYNTHESIS ==========
+  function isSpeechSupported() { 
+    return typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  }
+  
+  function loadVoicesWithRetry() {
+    if (!isSpeechSupported() || !synth) return;
+    try {
+      voices = synth.getVoices();
+      if (voices.length > 0) { voicesLoaded = true; selectVoice(); } 
+      else if (voiceRetryCount < 5) { voiceRetryCount++; setTimeout(loadVoicesWithRetry, 500 * voiceRetryCount); }
+    } catch(e) { console.warn('Voice load error:', e); }
+  }
+  
+  function selectVoice() { 
+    if (!voices.length) return;
+    const p = currentLang === 'ru' ? 'ru' : 'en'; 
+    currentVoice = voices.find(v => v.lang === `${p}-${p.toUpperCase()}`) || voices.find(v => v.lang.startsWith(p)) || voices.find(v => v.default) || voices[0]; 
+  }
+  
+  if (synth?.onvoiceschanged !== undefined) {
+    synth.onvoiceschanged = () => { voices = synth.getVoices(); if (voices.length > 0) { voicesLoaded = true; selectVoice(); } };
+  }
+  loadVoicesWithRetry();
+  setTimeout(loadVoicesWithRetry, 1000);
+  setTimeout(loadVoicesWithRetry, 3000);
+
+  // ✅ Управление речью
+  function stopSpeaking() {
+    if (synth && synth.speaking) {
+      try { synth.cancel(); } catch(e) { console.warn('Stop speaking error:', e); }
+    }
+  }
+
+  function speak(text, priority = false) {
+    if (!voiceEnabled || !isSpeechSupported() || !text) return;
+    
+    // ✅ ГАРАНТИРОВАННАЯ ОСТАНОВКА ПРЕДЫДУЩЕЙ РЕЧИ (исправление для Safari)
+    if (synth && synth.speaking) {
+      try { synth.cancel(); } catch(e) { console.warn('Cancel error:', e); }
+    }
+    
+    if (!voicesLoaded && synth) { 
+      const v = synth.getVoices(); 
+      if (v.length > 0) { voices = v; voicesLoaded = true; selectVoice(); } 
+    }
+    if (!voicesLoaded) return;
+    
+    const now = Date.now(); 
+    if (now - lastSpeakTime < 800 && !priority) return; 
+    lastSpeakTime = now;
+    
+    try { 
+      const u = new SpeechSynthesisUtterance(text); 
+      if (currentVoice) u.voice = currentVoice;
+      u.rate = 0.95; 
+      u.lang = currentLang === 'ru' ? 'ru-RU' : 'en-US';
+      u.onerror = (e) => {
+        console.warn('Speech error:', e.error);
+        if (e.error === 'voice-unavailable' && voiceRetryCount < 3) {
+          voiceRetryCount++;
+          setTimeout(() => loadVoicesWithRetry(), 1000);
+        }
+      };
+      if (synth) synth.speak(u); 
+    } catch(e) { 
+      console.warn('Speech speak error:', e); 
+    }
+  }
+  
+  function updateVoiceBtn() { const btn = document.getElementById('voiceBtn'); if (btn) { btn.textContent = voiceEnabled ? '🔊' : '🔇'; btn.classList.toggle('active', voiceEnabled); btn.setAttribute('aria-pressed', voiceEnabled); } }
+
+  // ========== 🎨 APP ==========
+  const app = {
+    t: function(key, params = {}) { let text = i18n[currentLang]?.[key] || i18n.ru[key] || key; Object.keys(params).forEach(p => text = text.replace(`{${p}}`, params[p])); return text; },
+    getBilingual: function(content) { if (typeof content === 'object' && content.ru && content.en) { return content[currentLang] || content.ru; } return content; },
+    
+    applyLang: function() {
+      document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (key && this.t(key)) el.textContent = this.t(key); });
+      document.getElementById('langBtn').textContent = currentLang === 'ru' ? '🌐 EN' : '🌐 RU';
+      const tm = { course: 'tab_course', tools: 'tab_tools', library: 'tab_library', progress: 'tab_progress' };
+      document.querySelectorAll('.tab-btn').forEach(b => { const k = tm[b.dataset.tab]; if (k && this.t(k)) b.textContent = this.t(k); });
+      updateVoiceBtn(); this.renderCourse(); this.renderTools(); speak(this.t('lang_changed'), true);
+    },
+    
+    toggleLang: function() { currentLang = currentLang === 'ru' ? 'en' : 'ru'; saveState(); this.applyLang(); },
+    switchTab: function(id) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+      document.getElementById(id).classList.add('active');
+      const activeBtn = document.querySelector(`.tab-btn[data-tab="${id}"]`);
+      activeBtn.classList.add('active');
+      activeBtn.setAttribute('aria-selected', 'true');
+    },
+    
+    _domCache: {},
+    _getEl: function(id) { if (!this._domCache[id]) this._domCache[id] = document.getElementById(id); return this._domCache[id]; },
+    
+    renderCourse: function() {
+      this._domCache = {};
+      
+      const c = this._getEl('lessonsContainer'); if (!c) return;
+      const completed = courseProgress.filter(x => x).length;
+      const pEl = this._getEl('courseProgress'), bEl = this._getEl('courseBar');
+      if (pEl) { pEl.textContent = `${completed}/10`; if(bEl) bEl.style.width = `${completed * 10}%`; if(bEl?.parentElement) bEl.parentElement.setAttribute('aria-valuenow', completed * 10); }
+      
+      const certBox = this._getEl('certificateBox');
+      if (certBox) {
+        if (courseProgress[9] && examScore === 10) {
+          // ✅ ИСПРАВЛЕНИЕ: Создание certData с ID без дефисов
+          if (!certData) {
+            const randomPart = crypto.randomUUID ? 
+                crypto.randomUUID().replace(/-/g, '').slice(0, 8).toUpperCase() : 
+                Math.random().toString(36).substring(2, 8).toUpperCase();
+            const id = 'QWEN-DATA-' + randomPart;
+            
+            certData = { 
+                id, 
+                course: "Qwen Data Curator Specialist", 
+                pipeline: "qwen-data-curator-ethics", 
+                version: "qwen-v2.5", 
+                date: new Date().toISOString().split('T')[0], 
+                issuer: "Anti-AI Qwen Academy", 
+                compliance: ["tongyi_safety_v2", "iso_iec_42001", "gdpr_compliant"], 
+                sig: generateCertSignature(id, "Anti-AI Qwen Academy"), 
+                skills: ["data_sourcing", "cleaning", "annotation", "bias_detection", "documentation"] 
+            };
+            saveState();
+          }
+          
+          if (certData) {
+            certBox.style.display = 'block';
+            this._getEl('certIdDisplay').textContent = certData.id;
+            this._getEl('certDateDisplay').textContent = certData.date;
+            this._getEl('certCourseDisplay').textContent = certData.course;
+            this._getEl('certIssuerDisplay').textContent = certData.issuer;
+            this._getEl('certPipelineDisplay').textContent = certData.pipeline;
+            this._getEl('certComplianceDisplay').textContent = certData.compliance.join(', ');
+          } else {
+            console.error('Certificate data is missing!');
+            certBox.style.display = 'none';
+          }
+        } else { certBox.style.display = 'none'; }
+      }
+
+      const fragment = document.createDocumentFragment();
+      DATA_CURATOR_COURSE.forEach((l, i) => {
+        const done = courseProgress[i], locked = i > 0 && !courseProgress[i-1] && !done, active = !locked && !done;
+        let st, sc; 
+        if (done) { st = currentLang === 'ru' ? '✅ ПРОЙДЕН' : '✅ DONE'; sc = 'completed'; } 
+        else if (active) { st = currentLang === 'ru' ? '🔓 АКТИВЕН' : '🔓 ACTIVE'; sc = 'active'; } 
+        else { st = currentLang === 'ru' ? '🔒 ЗАКРЫТ' : '🔒 LOCKED'; sc = 'locked'; }
+        const card = document.createElement('div');
+        card.className = `lesson-card ${done?'completed':active?'active':'locked'}`;
+        card.setAttribute('role', 'listitem');
+        card.innerHTML = `<div class="lesson-header"><span class="lesson-title">${this.t('day_label')} ${l.day}: ${this.getBilingual(l.title)}</span><span class="lesson-status ${sc}">${st}</span></div>`;
+        if (!locked) {
+          card.innerHTML += `<div class="lesson-content">${this.getBilingual(l.content)}</div>`;
+          if (l.case) card.innerHTML += `<div class="case-text">${this.getBilingual(l.case)}</div>`;
+          if (l.qwenFormat) card.innerHTML += `<div class="qwen-format">📦 Qwen Format: ${l.qwenFormat}</div>`;
+          card.innerHTML += `<div class="lesson-task"><b>🎯 ${this.t('task_label')}:</b> ${this.getBilingual(l.task)}</div>
+            <textarea class="lesson-input" id="task-${i}" placeholder="${this.t('answer_placeholder')}" ${done?'disabled':''} aria-label="Your answer for lesson ${l.day}"></textarea>
+            <div class="btn-group">
+              <button class="btn secondary" onclick="app.checkLesson(${i})" ${done?'disabled':''}>✅ ${this.t('check_btn')}</button>
+              <button class="btn secondary" onclick="app.showHint(${i})">💡 ${this.t('hint_btn')}</button>
+              <button class="btn secondary" onclick="app.showAnswer(${i})">👁️ ${this.t('answer_btn')}</button>
+            </div>
+            <div id="hint-${i}" style="display:none; margin-top:8px; padding:10px; background:rgba(0,188,212,0.1); border-radius:6px; font-size:0.8rem; color:var(--data);"></div>
+            <div id="answer-${i}" style="display:none; margin-top:8px; padding:10px; background:rgba(0,188,212,0.1); border-radius:6px; font-size:0.8rem; color:var(--data);"></div>
+            <div class="lesson-feedback" id="feedback-${i}" role="status" aria-live="polite"></div>`;
+        } else { card.innerHTML += `<p style="color:var(--muted); font-size:0.85rem;">🔒 ${this.t('locked_msg')}</p>`; }
+        fragment.appendChild(card);
+      });
+      c.innerHTML = ''; c.appendChild(fragment);
+      if (courseProgress.slice(0,9).every(x=>x) && !courseProgress[9] && examScore !== 10) this.renderExam();
+    },
+    
+    checkLesson: function(i) {
+      const inp = this._getEl(`task-${i}`)?.value.trim(), fb = this._getEl(`feedback-${i}`);
+      if (!inp || !fb) return;
+      if (inp.length < 10) { fb.className='lesson-feedback error'; fb.style.display='block'; fb.innerHTML=`⚠️ <b>${this.t('too_short')}</b>`; return; }
+      const checkFn = DATA_CURATOR_COURSE[i].check;
+      if (typeof checkFn !== 'function') {
+        fb.className='lesson-feedback error';
+        fb.innerHTML = `⚠️ Ошибка: для этого урока не определена проверка.`;
+        return;
+      }
+      const ok = checkFn(inp); fb.style.display='block';
+      if (ok) { courseProgress[i]=true; saveState(); this.renderCourse(); fb.className='lesson-feedback success'; fb.innerHTML=this.t('correct'); speak(this.t('correct'), true); }
+      else { fb.className='lesson-feedback error'; fb.innerHTML=this.t('incorrect'); speak(this.t('incorrect'), true); }
+    },
+    
+    showHint: function(i) { const h=this._getEl(`hint-${i}`); if(!h)return; h.style.display=h.style.display==='none'?'block':'none'; h.textContent='💡 '+this.getBilingual(DATA_CURATOR_COURSE[i].hint); },
+    showAnswer: function(i) { const a=this._getEl(`answer-${i}`); if(!a)return; a.style.display=a.style.display==='none'?'block':'none'; a.textContent='📚 '+this.t('answer_btn')+': '+this.getBilingual(DATA_CURATOR_COURSE[i].hint); },
+    
+    renderExam: function() {
+      if (courseProgress[9]) return; const l=DATA_CURATOR_COURSE[9], c=this._getEl('examContainer'); if(!c)return;
+      let h = `<div class="card" style="border-color:var(--data); background:rgba(0,188,212,0.05); margin-top:16px;">
+        <h3>🏆 ${this.t('final_exam')}</h3><p style="margin:12px 0;">${this.t('exam_instr')}</p>`;
+      l.examQuestions.forEach((q, i) => {
+        h += `<div class="exam-question" id="eq${i}"><p style="margin-bottom:8px;"><b>${this.t('question')} ${i+1}:</b> ${this.getBilingual(q.q)}</p>
+          <div class="exam-options">
+            <label><input type="radio" name="exam${i}" value="true"> ✅ ${this.t('true_opt')}</label>
+            <label><input type="radio" name="exam${i}" value="false"> ❌ ${this.t('false_opt')}</label>
+          </div></div>`;
+      });
+      h += `<button class="btn" onclick="app.submitExam()" style="width:100%; margin-top:16px; font-size:1.1rem;">📝 ${this.t('submit_exam')}</button>
+        <div id="examResult" style="margin-top:16px; display:none;" role="status" aria-live="polite"></div></div>`;
+      c.innerHTML = h;
+    },
+    
+    submitExam: function() {
+      let correct = 0; DATA_CURATOR_COURSE[9].examQuestions.forEach((q, i) => {
+        const sel = document.querySelector(`input[name="exam${i}"]:checked`);
+        if (sel) { const ok = (sel.value==='true') === q.correct; if(ok)correct++; const e=document.getElementById(`eq${i}`); if(e){e.classList.add('answered'); e.style.borderLeft=`3px solid ${ok?'var(--success)':'var(--danger)'}`; } }
+      });
+      examScore = correct; saveState();
+      const res = this._getEl('examResult'); res.style.display='block';
+      if (correct===10) {
+        courseProgress[9]=true; saveState(); this.renderCourse();
+        res.innerHTML = `<div style="text-align:center;padding:24px;background:rgba(46,204,113,0.15);border-radius:12px;border:2px solid var(--success);">
+          <h3 style="color:var(--success);font-size:1.8rem;">🎉 ${this.t('exam_perfect')}</h3>
+          <p style="font-size:1.3rem;margin:16px 0;"><b>10 ${this.t('out_of')} 10</b></p>
+          <p style="font-size:1.1rem;color:var(--gold);">🏆 ${this.t('cert_unlocked')}</p></div>`;
+        speak(this.t('exam_perfect'), true);
+      } else {
+        res.innerHTML = `<div style="text-align:center;padding:24px;background:rgba(231,76,60,0.15);border-radius:12px;border:2px solid var(--danger);">
+          <h3 style="color:var(--danger);font-size:1.5rem;">😔 ${this.t('exam_failed', {score:correct})}</h3>
+          <button class="btn secondary" onclick="app.renderExam()" style="margin-top:12px;">🔄 ${this.t('retry_btn')}</button></div>`;
+        speak(this.t('exam_failed', {score:correct}), true);
+      }
+    },
+
+    // ========== 🛠️ TOOLS ==========
+    renderTools: function() {
+      this.renderAnnotationGrid();
+      this.renderBiasChart();
+    },
+
+    renderAnnotationGrid: function() {
+      const container = document.getElementById('annotationGrid');
+      if(!container) return;
+      container.innerHTML = '';
+      ANNOTATION_ITEMS.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'annotation-item';
+        div.dataset.id = item.id;
+        div.dataset.label = item.label;
+        div.setAttribute('role', 'option');
+        div.setAttribute('aria-selected', 'false');
+        div.setAttribute('tabindex', '0');
+        div.innerHTML = `<img src="${item.src}" alt="Sample ${item.id}"><div class="label">${item.label}</div>`;
+        div.onclick = () => {
+          document.querySelectorAll('.annotation-item').forEach(i => { i.classList.remove('selected'); i.setAttribute('aria-selected', 'false'); });
+          div.classList.add('selected');
+          div.setAttribute('aria-selected', 'true');
+        };
+        div.onkeydown = (e) => { if(e.key==='Enter'||e.key===' ') { e.preventDefault(); div.click(); } };
+        container.appendChild(div);
+      });
+    },
+
+    annotateSelected: function(label) {
+      const selected = document.querySelector('.annotation-item.selected');
+      const result = document.getElementById('annotationResult');
+      if(!selected || !result) return;
+      
+      const prevLabel = selected.dataset.label;
+      selected.dataset.label = label;
+      selected.querySelector('.label').textContent = label;
+      result.style.display = 'block';
+      result.innerHTML = `<span style="color:var(--success);">✅ ${this.t('annotated')}: ${selected.dataset.id} → ${label}</span>`;
+      speak(this.t('correct'), true);
+    },
+
+    renderBiasChart: function() {
+      const container = document.getElementById('biasChart');
+      if(!container) return;
+      container.innerHTML = '';
+      BIAS_CATEGORIES.forEach(cat => {
+        const div = document.createElement('div');
+        div.className = 'bias-bar';
+        const percentage = Math.min(100, Math.round((cat.current / 100) * 100));
+        div.innerHTML = `
+          <span class="label">${this.getBilingual(cat.label)}</span>
+          <div class="bar"><div class="fill" style="width:${percentage}%"></div></div>
+          <span class="value">${cat.current}%</span>
+        `;
+        container.appendChild(div);
+      });
+    },
+
+    analyzeBias: function() {
+      const result = document.getElementById('biasResult');
+      if(!result) return;
+      
+      const biases = BIAS_CATEGORIES.filter(c => c.current > c.ideal + 20);
+      result.style.display = 'block';
+      
+      if(biases.length === 0) {
+        result.innerHTML = `<span style="color:var(--success);">✅ ${this.t('practice_correct')}<br><small>${currentLang === 'ru' ? 'Смещения в пределах допустимого' : 'Biases within acceptable range'}</small></span>`;
+        // ✅ ИСПРАВЛЕНО: используем i18n вместо хардкода
+        speak(this.t('practice_correct'), true);
+      } else {
+        const biasList = biases.map(b => this.getBilingual(b.label)).join(', ');
+        result.innerHTML = `<span style="color:var(--warning);">⚠️ ${this.t('practice_incorrect')}<br><small>${currentLang === 'ru' ? 'Обнаружены смещения: ' + biasList + '. Рекомендуется добор данных.' : 'Biases detected: ' + biasList + '. Consider data augmentation.'}</small></span>`;
+        speak(this.t('practice_incorrect'), true);
+      }
+    },
+
+    generateDatasetPreview: function() {
+      const desc = document.getElementById('datasetDesc')?.value.trim();
+      const type = document.getElementById('dataTypeSelect')?.value || 'images';
+      const size = document.getElementById('sizeSelect')?.value || 'medium';
+      const license = document.getElementById('licenseSelect')?.value || 'cc-by';
+      const quality = document.getElementById('qualitySlider')?.value || 7;
+      const preview = document.getElementById('datasetPreview');
+      const qualityValue = document.getElementById('qualityValue');
+      
+      if(qualityValue) qualityValue.textContent = quality;
+      if (!desc || !preview) return;
+      
+      const sizeRanges = { small: "100-500", medium: "500-2000", large: "2000+" };
+      
+      const qwenRecord = {
+        type: "qwen_dataset_record",
+        version: "qwen-v2.5",
+        name: "Library Educational Dataset",
+        description: desc,
+        data_type: type,
+        size_range: sizeRanges[size],
+        license: license,
+        quality_score: parseInt(quality) / 10,
+        metadata: {
+          creator: "Data Curator Specialist",
+          project: "anti-ai-qwen-academy",
+          language: currentLang,
+          offline_compatible: true
+        },
+        ethics_notes: {
+          bias_check: "pending",
+          legal_review: "pending",
+          consent_verified: true
+        },
+        created_at: new Date().toISOString()
+      };
+      
+      preview.textContent = JSON.stringify(qwenRecord, null, 2);
+      preview.style.display = 'block';
+    },
+
+    generateMetadata: function() {
+      const title = document.getElementById('metaTitle')?.value.trim() || 'Untitled Dataset';
+      const tags = document.getElementById('metaTags')?.value.trim().split(',').map(t => t.trim()).filter(t => t) || [];
+      const notes = document.getElementById('metaNotes')?.value.trim() || '';
+      const output = document.getElementById('metaOutput');
+      if(!output) return;
+      
+      const meta = {
+        id: crypto.randomUUID ? crypto.randomUUID().replace(/-/g, '').slice(0,8).toUpperCase() : Math.random().toString(36).substring(2,8).toUpperCase(),
+        title: title,
+        tags: tags,
+        notes: notes,
+        metadata: {
+          created_by: "Data Curator Specialist",
+          project: "anti-ai-qwen-academy",
+          license: "CC-BY-SA",
+          language: currentLang,
+          offline_compatible: true
+        },
+        usage_guidelines: {
+          approved_for: ["educational research", "AI literacy training", "offline workshops"],
+          requires_attribution: true,
+          commercial_use: false,
+          gdpr_compliant: true
+        }
+      };
+      
+      output.textContent = JSON.stringify(meta, null, 2);
+      output.style.display = 'block';
+    },
+    
+    resetProgress: function() {
+      if(confirm(this.t('reset_confirm'))) {
+        localStorage.removeItem('qwen_dc_progress'); localStorage.removeItem('qwen_dc_exam'); localStorage.removeItem('qwen_dc_certificate');
+        courseProgress=Array(10).fill(false); examScore=0; certData=null; saveState(); this.renderCourse();
+        speak(this.t('progress_reset'), true); alert(this.t('reset_done'));
+      }
+    },
+    
+    exportCertificate: function() {
+      if(!certData){alert(this.t('cert_locked'));return;}
+      try {
+        const b=new Blob([JSON.stringify(certData,null,2)],{type:'application/json'});
+        const url=URL.createObjectURL(b);
+        const a=document.createElement('a'); a.href=url; a.download=`certificate-${certData.id}.json`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url); speak(this.t('cert_downloaded'), true);
+      } catch(e) {
+        console.error('Export error:', e);
+        alert(this.t('cert_file_error'));
+      }
+    },
+
+    exportQwenPortfolio: function() {
+      if(!certData){alert(this.t('cert_locked'));return;}
+      try {
+        const qwenData = {
+          metadata: { cert_id: certData.id, pipeline: certData.pipeline, version: certData.version, date: certData.date, issuer: certData.issuer, compliance: certData.compliance },
+          cases: [
+            {id:"d1",type:"source",title:"Open Dataset Evaluation",format:"qwen_data_source_record.md"},
+            {id:"d2",type:"cleaning",title:"Artifact Removal Log",format:"qwen_cleaning_log.json"},
+            {id:"d3",type:"bias",title:"Demographic Bias Audit",format:"qwen_bias_audit.csv"},
+            {id:"d4",type:"security",title:"Access Control Config",format:"qwen_access_config.yaml"},
+            {id:"d5",type:"catalog",title:"Dataset Catalog Entry",format:"qwen_dataset_catalog.json"}
+          ],
+          skills: certData.skills,
+          signature: generateCertSignature(certData.id, certData.issuer)
+        };
+        const b=new Blob([JSON.stringify(qwenData,null,2)],{type:'application/json'});
+        const url=URL.createObjectURL(b);
+        const a=document.createElement('a'); a.href=url; a.download=`qwen-portfolio-${certData.id}.json`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url); speak(this.t('portfolio_downloaded'), true);
+      } catch(e) {
+        console.error('Export error:', e);
+        alert(this.t('cert_file_error'));
+      }
+    },
+    
+    printCertificate: function() {
+      if(!certData)return; 
+      const w=window.open('','_blank','width=900,height=700'); 
+      if(!w){alert('❌ Popup blocked.');return;}
+      try {
+        w.document.write(`<!DOCTYPE html><html><head><title>Certificate ${certData.id}</title><style>body{margin:0;padding:40px;font-family:system-ui;background:#0a0c14;color:#e6eaf0;min-height:100vh;display:flex;justify-content:center;align-items:center;}.cert{background:linear-gradient(135deg,rgba(0,188,212,0.15),rgba(0,212,255,0.1));border:4px solid #00bcd4;border-radius:20px;padding:50px;text-align:center;max-width:800px;}h1{color:#00bcd4;font-size:2.5rem;margin-bottom:20px;}.seal{width:100px;height:100px;border:4px solid #00bcd4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:30px auto;font-size:3rem;background:rgba(0,188,212,0.1);}.badge{display:inline-block;padding:10px 24px;background:linear-gradient(135deg,#00bcd4,#0097a7);color:#fff;border-radius:30px;font-weight:bold;margin:20px 0;}.id{font-family:monospace;background:rgba(0,0,0,0.4);padding:8px 16px;border-radius:8px;color:#00bcd4;display:inline-block;margin:12px 0;}.meta{color:#00d4ff;font-size:0.9rem;margin:8px 0;}p{font-size:1.1rem;margin:10px 0;}@media print{body{background:white;color:black;}.cert{border-color:#00bcd4;background:white;}}</style></head><body><div class="cert"><div class="seal">🗂️</div><h1>🎓 CERTIFICATE</h1><p style="font-size:1.3rem;margin:16px 0;"><b>${certData.issuer}</b></p><p>This certifies that</p><p style="font-size:1.2rem;color:#00bcd4;margin:8px 0;font-weight:bold;">${certData.course}</p><p>has successfully completed the ethical data curation course for AI verification projects</p><div class="id">${certData.id}</div><p class="meta">Pipeline: ${certData.pipeline} | Version: ${certData.version}</p><p class="meta">Compliance: ${certData.compliance.join(', ')}</p><p class="meta">Date: ${certData.date} | Issuer: ${certData.issuer}</p><div class="badge">Qwen Data Curator Specialist</div></div><script>window.onload=function(){window.print();}<\/script></body></html>`);
+        w.document.close();
+        w.onafterprint = function() { try { w.close(); } catch(e) {} };
+        setTimeout(() => { try { if (!w.closed) w.close(); } catch(e) {} }, 10000);
+        speak(this.t('print_cert'), true);
+      } catch(e) { console.error('Print error:', e); w.close(); }
+    },
+    
+    validateCertificate: function() {
+      const inp=this._getEl('validateInput')?.value.trim().toUpperCase(), res=this._getEl('validateResult'); if(!res)return; res.style.display='block';
+      if(!inp||!/^QWEN-DATA-[A-Z0-9]{6}$/.test(inp)){res.textContent=`❌ ${this.t('invalid_format')}`;res.style.color='var(--danger)';return;}
+      if(certData && inp === certData.id) {
+        const sigValid = verifyCertSignature(certData.id, certData.issuer, certData.sig);
+        if(sigValid) { res.innerHTML=`<span style="color:var(--success);">✅ ${this.t('cert_valid')}<br><small>${this.t('issued_label')}: ${certData.date}</small></span>`; res.style.color='var(--success)'; speak(this.t('cert_valid'), true); }
+        else { res.textContent=`❌ ${this.t('cert_bad_sig')}`; res.style.color='var(--danger)'; speak(this.t('cert_bad_sig'), true); }
+      } else { res.textContent=`❌ ${this.t('cert_invalid')}`; res.style.color='var(--danger)'; speak(this.t('cert_invalid'), true); }
+    },
+    
+    copyPhone: function() {
+      const p='89202275676'; 
+      if(navigator.clipboard?.writeText) navigator.clipboard.writeText(p).then(()=>speak(this.t('copied'), true)).catch(()=>app._fallbackCopy(p));
+      else app._fallbackCopy(p);
+    },
+    _fallbackCopy: function(text) { try { const t=document.createElement('textarea'); t.value=text; t.setAttribute('readonly',''); t.style.cssText='position:fixed;top:-9999px;left:-9999px;'; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); speak(this.t('copied'), true); } catch(e) { alert('Copy failed'); } },
+    openModal: function(id) { this._getEl(id)?.classList.add('open'); },
+    closeModal: function(id) { this._getEl(id)?.classList.remove('open'); },
+    toggleVoice: function() {
+      if(!isSpeechSupported()){ alert(currentLang==='ru'?'⚠️ Озвучка не поддерживается. Попробуйте Chrome/Edge.':'⚠️ Speech not supported. Try Chrome/Edge.'); return; }
+      voiceEnabled=!voiceEnabled; saveState(); updateVoiceBtn(); speak(voiceEnabled?this.t('voice_on'):this.t('voice_off'), true);
+    }
+  };
+
+  // 🔹 Initialization
+  document.addEventListener('DOMContentLoaded', () => {
+    // ✅ Предзагрузка голосов для Safari
+    if (voiceEnabled && isSpeechSupported()) {
+      setTimeout(() => { loadVoicesWithRetry(); }, 100);
+    }
+    
+    app.applyLang(); updateVoiceBtn(); app.renderCourse(); app.renderTools();
+    
+    // 🔹 Tab keyboard navigation
+    document.querySelectorAll('.tab-btn').forEach((btn, i, arr) => {
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          const next = arr[(i+1) % arr.length];
+          next.focus();
+          app.switchTab(next.dataset.tab);
+        }
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          const prev = arr[(i-1+arr.length) % arr.length];
+          prev.focus();
+          app.switchTab(prev.dataset.tab);
+        }
+      });
+      btn.addEventListener('click', (e) => { e.preventDefault(); app.switchTab(btn.dataset.tab); });
+    });
+    
+    const vBtn=document.getElementById('voiceBtn'); if(vBtn)vBtn.addEventListener('click', (e)=>{e.stopPropagation();app.toggleVoice();});
+    
+    // 🔹 Quality slider value update
+    const qualitySlider = document.getElementById('qualitySlider');
+    const qualityValue = document.getElementById('qualityValue');
+    if(qualitySlider && qualityValue) {
+      qualitySlider.addEventListener('input', () => { qualityValue.textContent = qualitySlider.value; });
+    }
+    
+    // 🔹 Unlock speech on first interaction
+    let speechUnlocked=false; 
+    function unlock(){ if(speechUnlocked||!isSpeechSupported())return; try{ const u=new SpeechSynthesisUtterance('');u.volume=0; if(synth){synth.speak(u);synth.cancel();} speechUnlocked=true; }catch(e){} }
+    ['click','touchstart','keydown'].forEach(evt=>document.addEventListener(evt,unlock,{once:true,passive:true}));
+    setTimeout(()=>{if(!voicesLoaded&&isSpeechSupported()){loadVoicesWithRetry();}},2000);
+  });
+  
+  window.app = app;
+})();
+</script>
+</body>
+</html>
